@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+use strict;
+
+use YAML;
+use File::Spec;
+
+sub badExit()
+{
+  print "\nErrors found while running, terminating.\n";
+
+  exit 1;
+}
+
+###
+# prototypes
+
+sub scanDir($);
+
+
+###
+# import conf
+
+my $conf = undef;
+
+unless (-f $ARGV[0] && ($conf = YAML::LoadFile($ARGV[0])))
+{
+  print "Unable to load / parse config file.\n";
+
+  badExit();
+}
+
+
+###
+# subroutines
+
+sub scanDir($$;$)
+{
+  my ($path, $re, $recurse) = @_;
+
+  my @f = ();
+
+  if (opendir(my $dh, $path))
+  {
+    # Perl POWERRR
+    @f = grep { } map { $recurse && -d ? } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
+  }
+
+  return wantarray ? @f : \@f;
+}
