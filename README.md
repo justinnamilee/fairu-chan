@@ -10,7 +10,7 @@ Scans one directory, uses mapping regex calls, scans another directory, and make
 I use this on my Plex server setup to sort new files I dump to the ingest folder automatically based on the rules laid out in the YAML config file.
 
 # How to do?
-`perl fairu-chan your-config.yml run`
+`$ perl fairu-chan your-config.yml run`
 
 If you omit "run" it will just tell you what it would do, but won't do it.
 
