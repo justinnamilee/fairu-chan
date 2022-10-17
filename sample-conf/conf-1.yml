@@ -8,7 +8,7 @@ nameOfGrouping:
     basePath: "/home/justin"
     outSprintf: "Spy x Family - %02d %s"
 nameOfGrouping2:
-  fileMode: copy
+  fileMode: move
   inFile:
     basePath: /home/justin/Pictures
     inRegex: "Blah Blah - (?<a_epnum>\d\d)(?<b_extra>(?:v\d+)? .+)"
