@@ -1,10 +1,17 @@
 ---
-- nameOfGrouping:
-    recursiveScane: false
-    inFile:
-      basePath: /home/justin/Downloads
-      inRegex: "Spy x Family - (?<a_epnum>\d\d)(?<b_extra>(?:v\d+)? .+)"
-      outSprintf: "Spy x Family - %02d %s"
-    outFile:
-      basePath: "/mnt/dark/Television/Spy x Family"
-      outRegex: 
+nameOfGrouping:
+  fileMode: copy
+  inFile:
+    basePath: /home/justin/Downloads
+    inRegex: "Spy x Family - (?<a_epnum>\d\d)(?<b_extra>(?:v\d+)? .+)"
+  outFile:
+    basePath: "/home/justin"
+    outSprintf: "Spy x Family - %02d %s"
+nameOfGrouping2:
+  fileMode: copy
+  inFile:
+    basePath: /home/justin/Pictures
+    inRegex: "Blah Blah - (?<a_epnum>\d\d)(?<b_extra>(?:v\d+)? .+)"
+  outFile:
+    basePath: "/home/justin"
+    outSprintf: "Pics or something %s %s"

@@ -2,26 +2,34 @@
 
 use strict;
 
+# Cute script-chan for managing files!
+
+
 use YAML;
 use File::Spec;
+use File::Copy;
+
 
 sub badExit()
 {
-  print "\nErrors found while running, terminating.\n";
+  print qq[\nErrors found while running, terminating.\n];
 
   exit 1;
 }
 
-###
-# prototypes
 
-sub scanDir($);
+###
+# prototypes & globals
+
+sub scanDir(_);
+
+my $conf = undef;
+my %dir = ();
+my %map = ();
 
 
 ###
 # import conf
-
-my $conf = undef;
 
 unless (-f $ARGV[0] && ($conf = YAML::LoadFile($ARGV[0])))
 {
@@ -32,19 +40,79 @@ unless (-f $ARGV[0] && ($conf = YAML::LoadFile($ARGV[0])))
 
 
 ###
+# scan directories
+
+foreach my $k (keys(%{$conf}))
+{
+  $dir{$conf->{$k}->{inFile}->{basePath}}++;
+}
+
+foreach my $d (sort(keys(%dir)))
+{
+  $dir{$d} = [scanDir($d)];
+}
+
+
+###
+# filter for files
+
+foreach my $k (keys(%{$conf}))
+{
+  my $g = $conf->{$k};
+  my $r = qr/$g->{inFile}->{inRegex}/;
+
+  foreach my $p (@{$dir{$g->{inFile}->{basePath}}})
+  {
+    my ($v, $d, $f) = File::Spec->splitpath($p);
+
+    if ($f =~ $r)
+    {
+      # %+ is the special hash for named capture groups in Perl regex, we sort them and stuff them into sprintf
+      my $out = File::Spec->join($g->{outFile}->{basePath}, sprintf($g->{outFile}->{outSprintf}, sort keys(%+)));
+
+      unless (-e $out)
+      {
+        $map{$p} = $out;
+      }
+    }
+  }
+}
+
+
+###
+# copy time!
+
+foreach my $op (keys(%map))
+{
+  my $np = $map{$op};
+
+  if (defined($conf->{fileMode}) && lc($conf->{fileMode}) eq q[move])
+  {
+    print qq[move($op, $np)\n];
+    #move($op, $np)
+    #  or warn qq[Failed to move '$op' to '$np': $!\n];
+  }
+  else
+  {
+    print qq[copy($op, $np)\n];
+    #copy($op, $np)
+    #  or warn qq[Failed to copy '$op' to '$np': $!\n];
+  }
+}
+
+
+
+###
 # subroutines
 
-sub scanDir($$;$)
+sub scanDir(_)
 {
-  my ($path, $re, $recurse) = @_;
-
-  my @f = ();
+  my ($path, @f) = @_;
 
   if (opendir(my $dh, $path))
   {
-    # Perl POWERRR
-    @f = grep { } map { $recurse && -d ? } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
+    @f = map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
   }
 
-  return wantarray ? @f : \@f;
+  return @f;
 }
