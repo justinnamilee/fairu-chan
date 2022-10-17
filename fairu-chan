@@ -34,7 +34,7 @@ my %map = ();
 
 unless (-f $ARGV[0] && ($conf = YAML::LoadFile($ARGV[0])))
 {
-  print "Unable to load / parse config file.\n";
+  print qq[Unable to load / parse config file.\n];
 
   badExit();
 }
@@ -65,7 +65,7 @@ foreach my $d (sort(keys(%dir)))
 foreach my $k (keys(%{$conf}))
 {
   my $g = $conf->{$k};
-  my $r = qr/$g->{inFile}->{inRegex}/;
+  my $r = qr[$g->{inFile}->{inRegex}];
 
   foreach my $p (@{$dir{$g->{inFile}->{basePath}}})
   {
