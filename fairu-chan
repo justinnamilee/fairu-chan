@@ -24,6 +24,7 @@ sub badExit()
 sub scanDir(_);
 
 my $conf = undef;
+my $run = undef;
 my %dir = ();
 my %map = ();
 
@@ -36,6 +37,11 @@ unless (-f $ARGV[0] && ($conf = YAML::LoadFile($ARGV[0])))
   print "Unable to load / parse config file.\n";
 
   badExit();
+}
+
+if (defined($ARGV[1]) && lc($ARGV[1]) eq q[run])
+{
+  $run = 1;
 }
 
 
@@ -68,7 +74,7 @@ foreach my $k (keys(%{$conf}))
     if ($f =~ $r)
     {
       # %+ is the special hash for named capture groups in Perl regex, we sort them and stuff them into sprintf
-      my $out = File::Spec->join($g->{outFile}->{basePath}, sprintf($g->{outFile}->{outSprintf}, sort keys(%+)));
+      my $out = File::Spec->join($g->{outFile}->{basePath}, sprintf($g->{outFile}->{outSprintf}, map { $+{$_} } sort keys(%+)));
 
       unless (-e $out)
       {
@@ -82,21 +88,29 @@ foreach my $k (keys(%{$conf}))
 ###
 # copy time!
 
-foreach my $op (keys(%map))
+foreach my $op (sort keys(%map))
 {
   my $np = $map{$op};
 
   if (defined($conf->{fileMode}) && lc($conf->{fileMode}) eq q[move])
   {
     print qq[move($op, $np)\n];
-    #move($op, $np)
-    #  or warn qq[Failed to move '$op' to '$np': $!\n];
+
+    if ($run)
+    {
+      move($op, $np)
+        or warn qq[Failed to move '$op' to '$np': $!\n];
+    }
   }
   else
   {
     print qq[copy($op, $np)\n];
-    #copy($op, $np)
-    #  or warn qq[Failed to copy '$op' to '$np': $!\n];
+    
+    if ($run)
+    {
+      copy($op, $np)
+        or warn qq[Failed to copy '$op' to '$np': $!\n];
+    }
   }
 }
 
