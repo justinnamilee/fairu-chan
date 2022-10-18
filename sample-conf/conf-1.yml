@@ -1,16 +1,23 @@
 ---
 meta:
+  # remove this section if you aren't using discord
   discord:
     webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
     template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
 data:
+  # you can name the groupings whatever you want
   nameOfGrouping:
+    # this should be copy or move
     fileMode: copy
+    # where are the files now?
     inFile:
       basePath: /home/justin/Downloads
+      # use NAMED capture groups to extract info: (?<name>regex)
       inRegex: "Spy x Family - (?<a_epnum>\d\d)(?<b_extra>(?:v\d+)? .+)"
+    # where do you want them to go?
     outFile:
       basePath: "/home/justin"
+      # the capture groups will be sorted (alpha) then put into this sprintf
       outSprintf: "Spy x Family - %02d %s"
   nameOfGrouping2:
     fileMode: move
