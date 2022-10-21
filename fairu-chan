@@ -12,7 +12,7 @@ use File::Copy;
 
 sub badExit()
 {
-  print qq[\nErrors found while running, terminating.\n];
+  warn qq[\nErrors found while running, terminating.\n];
 
   exit 1;
 }
@@ -32,31 +32,69 @@ my %map = ();
 
 
 ###
-# import conf
+# import & validate conf
 
 if (-f $ARGV[0] && (my $conf = YAML::LoadFile($ARGV[0])))
 {
-  $data = $conf->{data};
-  $meta = $conf->{meta};
-
-  if (defined($meta->{discord}))
+  if (ref($conf) eq 'HASH' && ref($conf->{data}) eq 'HASH' && ref($conf->{meta}) eq 'HASH')
   {
-    require WebService::Discord::Webhook;
+    $data = $conf->{data};
+    $meta = $conf->{meta};
 
-    my $wh = WebService::Discord::Webhook->new(url => $meta->{discord}->{webhookUrl}, verify_SSL => 1);
-    $wh->get();
-
-    print qq[Configured with Discord support: $wh->{name} @ $wh->{channel_id}\n];
-
-    $hook = sub
+    # optional config section, will fail if improperly setup
+    if (ref($meta->{discord}) eq 'HASH')
     {
-      $wh->execute(sprintf($meta->{discord}->{template}, @_));
+      require Data::Validate::URI;
+
+      if (Data::Validate::URI::is_https_uri($meta->{discord}->{webhookUrl}) && length($meta->{discord}->{template}) > 0) {
+        require WebService::Discord::Webhook;
+
+        my $wh = WebService::Discord::Webhook->new(url => $meta->{discord}->{webhookUrl}, verify_SSL => 1);
+
+        # catch errors and wrap them
+        eval { $wh->get() };
+
+        if ($@)
+        {
+          warn qq[Failed to configure Discord support:\n\t$@];
+
+          badExit();
+        }
+        else
+        {
+          print qq[Configured with Discord support: $wh->{name} @ $wh->{channel_id}\n];
+
+          $hook = sub { $wh->execute(sprintf($meta->{discord}->{template}, @_)) };
+        }
+      }
+      else
+      {
+        warn qq[Failed to validate config: check Discord webhookUrl or template string\n];
+
+        badExit();
+      }
     }
+    else
+    {
+      warn qq[Discord key present in config, but not setup, skipping\n];
+    }
+
+    # validate the groupings
+    foreach my $t (sort keys(%{$data}))
+    {
+      badExit() unless (validGrouping($t, $data->{$t}));
+    }
+  }
+  else
+  {
+    warn qq[Failed to load config: invalid format, see example\n];
+
+    badExit();
   }
 }
 else
 {
-  print qq[Unable to load / parse config file.\n];
+  warn qq[Failed to load config: '$ARGV[0]' either not a readable file or invalid YAML\n];
 
   badExit();
 }
@@ -126,7 +164,7 @@ foreach my $op (sort keys(%map))
       }
       else
       {
-        warn qq[Failed to move '$op' to '$np': $!\n];
+        warn qq[Failed to move: '$op' to '$np': $!\n];
       }
     }
   }
@@ -142,7 +180,7 @@ foreach my $op (sort keys(%map))
       }
       else
       {
-        warn qq[Failed to copy '$op' to '$np': $!\n];
+        warn qq[Failed to copy: '$op' to '$np': $!\n];
       }
     }
   }
@@ -163,4 +201,41 @@ sub scanDir(_)
   }
 
   return @f;
+}
+
+sub validGrouping($$)
+{
+  my ($t, $g) = @_;
+
+  unless (lc($g->{fileMode}) eq q[move] || lc($g->{fileMode}) eq q[copy])
+  {
+    warn qq[Failed to validate config: fileMode should be 'copy' or 'move' for '$t'\n];
+    return (undef);
+  }
+
+  unless (-d $g->{inFile}->{basePath})
+  {
+    warn qq[Failed to validate config: '$g->{inFile}->{basePath}' is not a directory for '$t'\n];
+    return (undef);
+  }
+
+  unless (-d $g->{outFile}->{basePath})
+  {
+    warn qq[Failed to validate config: '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
+    return (undef);
+  }
+
+  unless (length($g->{inFile}->{inRegex}) > 0)
+  {
+    warn qq[Failed to validate config: inRegex should be a string of length > 0 for '$t'\n];
+    return (undef);
+  }
+
+  unless (length($g->{outFile}->{outSprintf}) > 0)
+  {
+    warn qq[Failed to validate config: outFile should be a string of length > 0 for '$t'\n];
+    return (undef);
+  }
+
+  return (1);
 }
