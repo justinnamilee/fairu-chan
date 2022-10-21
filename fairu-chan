@@ -207,6 +207,11 @@ sub validGrouping($$)
 {
   my ($t, $g) = @_;
 
+  unless (ref($g) eq 'HASH')
+  {
+    warn qq[Failed to validate config: grouping '$t' is not a hash/object\n];
+  }
+
   unless (lc($g->{fileMode}) eq q[move] || lc($g->{fileMode}) eq q[copy])
   {
     warn qq[Failed to validate config: fileMode should be 'copy' or 'move' for '$t'\n];
