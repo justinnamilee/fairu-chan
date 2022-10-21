@@ -209,7 +209,8 @@ sub validGrouping($$)
 
   unless (ref($g) eq 'HASH')
   {
-    warn qq[Failed to validate config: grouping '$t' is not a hash/object\n];
+    warn qq[Failed to validate config: grouping should be a hash/object for '$t'\n];
+    return (undef);
   }
 
   unless (lc($g->{fileMode}) eq q[move] || lc($g->{fileMode}) eq q[copy])
@@ -218,15 +219,21 @@ sub validGrouping($$)
     return (undef);
   }
 
+  unless (ref($g->{inFile}) eq 'HASH' && ref($g->{outFile}))
+  {
+    warn qq[Failed to validate config: inFile/outFile should be a hash/object for '$t'\n];
+    return (undef);
+  }
+
   unless (-d $g->{inFile}->{basePath})
   {
-    warn qq[Failed to validate config: '$g->{inFile}->{basePath}' is not a directory for '$t'\n];
+    warn qq[Failed to validate config: basePath '$g->{inFile}->{basePath}' is not a directory for '$t'\n];
     return (undef);
   }
 
   unless (-d $g->{outFile}->{basePath})
   {
-    warn qq[Failed to validate config: '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
+    warn qq[Failed to validate config: basePath '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
     return (undef);
   }
 
@@ -238,7 +245,7 @@ sub validGrouping($$)
 
   unless (length($g->{outFile}->{outSprintf}) > 0)
   {
-    warn qq[Failed to validate config: outFile should be a string of length > 0 for '$t'\n];
+    warn qq[Failed to validate config: outSprintf should be a string of length > 0 for '$t'\n];
     return (undef);
   }
 
