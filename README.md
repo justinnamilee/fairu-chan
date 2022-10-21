@@ -16,7 +16,7 @@ If you omit "run" it will just tell you what it would do, but won't do it.
 
 When you build the config file, if you want to be able to use capture groups for the sprintf you *NEED* to use named captured groups like `(?<a_something>\d\d)` or `(?<b_somethingelse> - \S+)`.  These get sorted and put into the sprintf in order for ease of use, which is why I tend to prefix them with a single letter then an underscore with some further description.
 
-If you want Discord support include the "discord" section, otherwise omit it from the config.  You'll need to install the `WebService::Discord::Webhook` Perl module to use it.
+If you want Discord support include the "discord" section, otherwise omit it from the config.  You'll need to install the `WebService::Discord::Webhook` and `IO::Socket::SSL` Perl modules to use it.
 
 
 ---
