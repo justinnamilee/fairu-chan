@@ -99,9 +99,13 @@ else
   badExit();
 }
 
+print qq[Configuration validated\n];
+
 if (defined($ARGV[1]) && lc($ARGV[1]) eq q[run])
 {
   $run = 1;
+
+  print qq[Configured for 'run' mode\n];
 }
 
 
