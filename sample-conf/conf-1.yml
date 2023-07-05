@@ -1,5 +1,7 @@
 ---
 meta:
+  # don't auto create directories for output files
+  create: false
   # remove this section if you aren't using discord
   discord:
     webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd

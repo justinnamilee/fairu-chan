@@ -246,7 +246,7 @@ sub validGrouping($$)
     return (undef);
   }
 
-  unless (-d $g->{outFile}->{basePath})
+  unless (-d $g->{outFile}->{basePath} || $meta->{create})
   {
     warn qq[Failed to validate config: basePath '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
     return (undef);
