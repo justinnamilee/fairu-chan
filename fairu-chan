@@ -8,6 +8,7 @@ use strict;
 use YAML;
 use File::Spec;
 use File::Copy;
+use File::Path qw[make_path];
 
 
 sub badExit()
@@ -155,6 +156,16 @@ foreach my $k (keys(%{$data}))
 foreach my $op (sort keys(%map))
 {
   my $np = $map{$op};
+  my ($vol, $dir, $fil) = File::Spec->splitpath($np);
+  my $path = File::Spec->join($vol, $dir);
+
+  if ($run && not -d $path)
+  {
+    unless (make_path($path))
+    {
+      warn qq[Failed to create path: '$path': $!\n];
+    }
+  }
 
   if (defined($data->{fileMode}) && lc($data->{fileMode}) eq q[move])
   {
@@ -164,7 +175,7 @@ foreach my $op (sort keys(%map))
     {
       if (move($op, $np))
       {
-        $hook->((File::Spec->splitpath($np))[2]) if defined($hook);
+        $hook->($fil) if defined($hook);
       }
       else
       {
@@ -180,7 +191,7 @@ foreach my $op (sort keys(%map))
     {
       if (copy($op, $np))
       {
-        $hook->((File::Spec->splitpath($np))[2]) if defined($hook);
+        $hook->($fil) if defined($hook);
       }
       else
       {
