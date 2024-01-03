@@ -213,7 +213,7 @@ sub scanDir(_)
 
   if (opendir(my $dh, $path))
   {
-    @f = map { ($meta->{recurse} && -d) ? scanDir : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
+    @f = map { (lc($meta->{recurse}) eq q[true] && -d) ? scanDir : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
   }
 
   return @f;
