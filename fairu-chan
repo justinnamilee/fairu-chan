@@ -23,6 +23,7 @@ sub badExit()
 # prototypes & globals
 
 sub scanDir(_);
+sub validGrouping($$);
 
 my $data = undef;
 my $meta = undef;
@@ -159,6 +160,7 @@ foreach my $op (sort keys(%map))
   my ($vol, $dir, $fil) = File::Spec->splitpath($np);
   my $path = File::Spec->join($vol, $dir);
 
+  # only basePath is checked for "create" flag, this allows dynamic folders in outSprintf
   if ($run && not -d $path)
   {
     unless (make_path($path))
@@ -202,7 +204,6 @@ foreach my $op (sort keys(%map))
 }
 
 
-
 ###
 # subroutines
 
@@ -212,7 +213,7 @@ sub scanDir(_)
 
   if (opendir(my $dh, $path))
   {
-    @f = map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
+    @f = map { ($meta->{recurse} && -d) ? scanDir : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
   }
 
   return @f;
@@ -246,7 +247,7 @@ sub validGrouping($$)
     return (undef);
   }
 
-  unless (-d $g->{outFile}->{basePath} || $meta->{create})
+  unless (-d $g->{outFile}->{basePath} || lc($meta->{create}) eq q[true])
   {
     warn qq[Failed to validate config: basePath '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
     return (undef);
