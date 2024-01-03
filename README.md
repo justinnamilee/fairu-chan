@@ -10,9 +10,9 @@ Scans one directory, uses mapping regex calls, scans another directory, and make
 I use this on my Plex server setup to sort new files I dump to the ingest folder automatically based on the rules laid out in the YAML config file.
 
 # How to do?
-`$ perl fairu-chan your-config.yml run`
+`$ perl run fairu-chan your-config.yml`
 
-If you omit "run" it will just tell you what it would do, but won't do it.
+If you swap "run" for "validate" it will just tell you what it would do, but won't do it.
 
 When you build the config file, if you want to be able to use capture groups for the sprintf you *NEED* to use named captured groups like `(?<a_something>\d\d)` or `(?<b_somethingelse> - \S+)`.  These get sorted and put into the sprintf in order for ease of use, which is why I tend to prefix them with a single letter then an underscore with some further description.
 

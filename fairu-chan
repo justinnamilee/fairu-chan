@@ -11,19 +11,16 @@ use File::Copy;
 use File::Path qw[make_path];
 
 
-sub badExit()
-{
-  warn qq[\nErrors found while running, terminating.\n];
-
-  exit 1;
-}
-
-
 ###
 # prototypes & globals
 
+sub badExit();
 sub scanDir(_);
+sub yamlBoolean(_);
 sub validGrouping($$);
+
+sub MODE() { 0 }
+sub FILE() { 1 }
 
 my $data = undef;
 my $meta = undef;
@@ -36,74 +33,83 @@ my %map = ();
 ###
 # import & validate conf
 
-if (-f $ARGV[0] && (my $conf = YAML::LoadFile($ARGV[0])))
+if (lc($ARGV[MODE()]) eq q[validate] || lc($ARGV[MODE()]) eq q[run])
 {
-  if (ref($conf) eq 'HASH' && ref($conf->{data}) eq 'HASH' && ref($conf->{meta}) eq 'HASH')
+  if (-f $ARGV[FILE()] && (my $conf = YAML::LoadFile($ARGV[FILE()])))
   {
-    $data = $conf->{data};
-    $meta = $conf->{meta};
-
-    # optional config section, will fail if improperly setup
-    if (ref($meta->{discord}) eq 'HASH')
+    if (ref($conf) eq 'HASH' && ref($conf->{data}) eq 'HASH' && ref($conf->{meta}) eq 'HASH')
     {
-      require Data::Validate::URI;
+      $data = $conf->{data};
+      $meta = $conf->{meta};
 
-      if (Data::Validate::URI::is_https_uri($meta->{discord}->{webhookUrl}) && length($meta->{discord}->{template}) > 0) {
-        require WebService::Discord::Webhook;
+      # optional config section, will fail if improperly setup
+      if (ref($meta->{discord}) eq 'HASH')
+      {
+        require Data::Validate::URI;
 
-        my $wh = WebService::Discord::Webhook->new(url => $meta->{discord}->{webhookUrl}, verify_SSL => 1);
+        if (Data::Validate::URI::is_https_uri($meta->{discord}->{webhookUrl}) && length($meta->{discord}->{template}) > 0) {
+          require WebService::Discord::Webhook;
 
-        # catch errors and wrap them
-        eval { $wh->get() };
+          my $wh = WebService::Discord::Webhook->new(url => $meta->{discord}->{webhookUrl}, verify_SSL => 1);
 
-        if ($@)
-        {
-          warn qq[Failed to configure Discord support:\n\t$@];
+          # catch errors and wrap them
+          eval { $wh->get() };
 
-          badExit();
+          if ($@)
+          {
+            warn qq[Failed to configure Discord support:\n\t$@];
+
+            badExit();
+          }
+          else
+          {
+            print qq[Configured with Discord support: $wh->{name} @ $wh->{channel_id}\n];
+
+            $hook = sub { $wh->execute(sprintf($meta->{discord}->{template}, @_)) };
+          }
         }
         else
         {
-          print qq[Configured with Discord support: $wh->{name} @ $wh->{channel_id}\n];
+          warn qq[Failed to validate config: check Discord webhookUrl or template string\n];
 
-          $hook = sub { $wh->execute(sprintf($meta->{discord}->{template}, @_)) };
+          badExit();
         }
       }
       else
       {
-        warn qq[Failed to validate config: check Discord webhookUrl or template string\n];
+        warn qq[Discord key present in config, but not setup, skipping\n];
+      }
 
-        badExit();
+      # validate the groupings
+      foreach my $t (sort keys(%{$data}))
+      {
+        badExit() unless (validGrouping($t, $data->{$t}));
       }
     }
     else
     {
-      warn qq[Discord key present in config, but not setup, skipping\n];
-    }
+      warn qq[Failed to load config: invalid format, see example\n];
 
-    # validate the groupings
-    foreach my $t (sort keys(%{$data}))
-    {
-      badExit() unless (validGrouping($t, $data->{$t}));
+      badExit();
     }
   }
   else
   {
-    warn qq[Failed to load config: invalid format, see example\n];
+    warn qq[Failed to load config: '$ARGV[FILE()]' either not a readable file or invalid YAML\n];
 
     badExit();
   }
 }
 else
 {
-  warn qq[Failed to load config: '$ARGV[0]' either not a readable file or invalid YAML\n];
+  warn qq[Provided mode '$ARGV[MODE()]' is invalid\n];
 
   badExit();
 }
 
 print qq[Configuration validated\n];
 
-if (defined($ARGV[1]) && lc($ARGV[1]) eq q[run])
+if (lc($ARGV[MODE()]) eq q[run])
 {
   $run = 1;
 
@@ -119,7 +125,7 @@ foreach my $k (keys(%{$data}))
   $dir{$data->{$k}->{inFile}->{basePath}}++;
 }
 
-foreach my $d (sort(keys(%dir)))
+foreach my $d (keys(%dir))
 {
   $dir{$d} = [scanDir($d)];
 }
@@ -169,7 +175,7 @@ foreach my $op (sort keys(%map))
     }
   }
 
-  if (defined($data->{fileMode}) && lc($data->{fileMode}) eq q[move])
+  if (lc($data->{fileMode}) eq q[move])
   {
     print qq[move($op, $np)\n];
 
@@ -207,16 +213,26 @@ foreach my $op (sort keys(%map))
 ###
 # subroutines
 
+sub badExit()
+{
+  die qq[\nErrors found while running, terminating.\n];
+}
+
 sub scanDir(_)
 {
   my ($path, @f) = @_;
 
   if (opendir(my $dh, $path))
   {
-    @f = map { (lc($meta->{recurse}) eq q[true] && -d) ? scanDir : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
+    @f = map { (yamlBoolean($meta->{recurse}) && -d) ? scanDir : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($dh);
   }
 
   return @f;
+}
+
+sub yamlBoolean(_)
+{
+  return (lc($_[0]) eq q[true]);
 }
 
 sub validGrouping($$)
@@ -247,7 +263,7 @@ sub validGrouping($$)
     return (undef);
   }
 
-  unless (-d $g->{outFile}->{basePath} || lc($meta->{create}) eq q[true])
+  unless (-d $g->{outFile}->{basePath} || yamlBoolean($meta->{create}))
   {
     warn qq[Failed to validate config: basePath '$g->{outFile}->{basePath}' is not a directory for '$t'\n];
     return (undef);
