@@ -2,7 +2,7 @@
 meta:
   # don't auto recurse in the scan directory
   recurse: false
-  # don't auto create directories for output files
+  # auto create directories for output files (basePath only)
   create: true
   # remove this section if you aren't using discord
   discord:
