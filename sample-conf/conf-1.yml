@@ -2,17 +2,27 @@
 meta:
   # don't auto recurse in the scan directory
   recurse: false
-  # auto create directories for output files (basePath only)
-  create: true
-  # remove this section if you aren't using discord
-  discord:
-    webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
-    template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
+  # how long between runs if daemonizing
+  idleTime: 200
+  # how long between checks
+  waitTime: 60
+  # do a subroutine for a matching tag, gets one arg, should return one too
+  mapFunction:
+    # for all mappings upper-case anything tagged as a_prefix
+    a_prefix: "sub { uc shift }"
+  # remove notification field or undefined if you don't want one
+  notification:    
+    discord:
+      webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
+      template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
 data:
   # you can name the groupings whatever you want
   nameOfGrouping:
     # this should be copy or move
     fileMode: copy
+    # do a subroutine for a matching tag, gets one arg, should return one too
+    mapFunction:
+      b_postfix: "sub { lc shift }"
     # where are the files now?
     inFile:
       basePath: /home/justin/Downloads
