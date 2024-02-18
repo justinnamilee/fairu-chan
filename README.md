@@ -18,6 +18,11 @@ When you build the config file, if you want to make use of capture groups for th
 
 If you want Discord support include the "discord" section as shown in the example, otherwise don't include it in the config at all.  You'll need to install the [WebService::Discord::Webhook](https://metacpan.org/pod/WebService::Discord::Webhook), [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL), and [Data::Validate::URI](https://metacpan.org/pod/Data::Validate::URI) Perl modules to use it.  I will likely add other notification types if I desire them...
 
+# Signals when daemonized?
+- `SIGTERM` will gracefully exit after current sleep or operation finishes.
+- `SIGUSR1` run a check as soon as the next sleep is finished instead of waiting for the full idle timeout.
+- `SIGUSR2` try to parse the config again, if it fails keep the current, otherwise update to the new one.
+- `SIGINT` will just kill it where ever it is, no grace.
 
 ---
 
