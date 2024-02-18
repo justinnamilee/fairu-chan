@@ -1,4 +1,6 @@
 ---
+# TODO: clean this up or split into a few example files?
+
 meta:
   # don't auto recurse in the scan directory
   recurse: false
@@ -10,7 +12,7 @@ meta:
   mapFunction:
     # for all mappings upper-case anything tagged as a_prefix
     a_prefix: "sub { uc shift }"
-  # remove notification field or undefined if you don't want one
+  # remove notification field or leave undefined if you don't want one
   notification:    
     discord:
       webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
