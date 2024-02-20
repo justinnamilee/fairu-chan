@@ -14,7 +14,7 @@ my $template = undef;
 sub init($)
 {
   my ($error, $config) = (0, @_);
-  
+
   if (ref($config) eq q[HASH])
   {
     require Data::Validate::URI;

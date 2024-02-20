@@ -83,11 +83,11 @@ sub matchFiles($)
 
                 #? apply a "local" mapping function if it exists
                 ? $group->{mapFunction}->{$_}->($+{$_})
-                
+
                 #? if not, try a "global" mapping function, otherwise return the raw data
                 : (exists(meta->{mapFunction}->{$_}) ? meta->{mapFunction}->{$_}->($+{$_}) : $+{$_})
 
-            #? from the %+ we take data in lexical order (https://perldoc.perl.org/functions/sort) 
+            #? from the %+ we take data in lexical order (https://perldoc.perl.org/functions/sort)
             } sort keys(%+)
           )
         );
@@ -103,15 +103,13 @@ sub matchFiles($)
 sub uwu($)
 {
   my ($error, $action) = (0, @_);
-  
+
   my $cache = getFiles();
   my $map = matchFiles($cache);
 
   foreach my $k (keys(%{$map}))
   {
     my ($mode, $j) = ($map->{$k}->{mode}, $map->{$k}->{file});
-
-    print qq['$k' -> '$j'\n];
 
     my ($v, $d, $f) = File::Spec->splitpath($j);
     my $path = File::Spec->join($v, $d);
@@ -137,6 +135,8 @@ sub uwu($)
         $error++;
       }
     }
+
+    print qq[\u$mode: '$k' -> '$j'\n];
   }
 
   return ($error);
