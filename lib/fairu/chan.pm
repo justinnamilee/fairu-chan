@@ -18,7 +18,7 @@ our @EXPORT_OK = qw[uwu];
 
 sub recursive($)
 {
-  meta->{recurse} || data->{$_[0]}->{inFile}->{recurse} ? 1 : 0
+  (meta->{recurse} || data->{$_[0]}->{inFile}->{recurse}) ? 1 : 0
 }
 
 sub scanFiles($$)
@@ -47,7 +47,7 @@ sub getFiles()
 
     unless (exists($cache->{recursive($title)}->{$path}))
     {
-      $cache->{$path} = [scanFiles(recursive($title), $path)];
+      $cache->{recursive($title)}->{$path} = [scanFiles(recursive($title), $path)];
     }
   }
 
