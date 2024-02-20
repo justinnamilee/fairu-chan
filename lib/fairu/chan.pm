@@ -16,6 +16,11 @@ use Exporter q[import];
 our @EXPORT_OK = qw[uwu];
 
 
+sub recursive($)
+{
+  meta->{recurse} || data->{$_[0]}->{inFile}->{recurse} ? 1 : 0
+}
+
 sub scanFiles($$)
 {
   my ($recurse, $path, @f) = @_;
@@ -34,15 +39,15 @@ sub scanFiles($$)
 
 sub getFiles()
 {
-  my $cache = {};
+  my $cache = {0 => {}, 1 => {}}; # quick hack fix
 
   foreach my $title (keys(%{data()}))
   {
     my $path = data->{$title}->{inFile}->{basePath};
 
-    unless (exists($cache->{$path}))
+    unless (exists($cache->{recursive($title)}->{$path}))
     {
-      $cache->{$path} = [scanFiles((meta->{recurse} || data->{$title}->{inFile}->{recurse}), $path)];
+      $cache->{$path} = [scanFiles(recursive($title), $path)];
     }
   }
 
@@ -58,7 +63,7 @@ sub matchFiles($)
     my $group = data->{$title};
     my $match = qr[$group->{inFile}->{inRegex}];
 
-    foreach my $file (@{$cache->{$group->{inFile}->{basePath}}})
+    foreach my $file (@{$cache->{recursive($title)}->{$group->{inFile}->{basePath}}})
     {
       #? volume (barf), directory, file
       my ($v, $d, $f) = File::Spec->splitpath($file);
