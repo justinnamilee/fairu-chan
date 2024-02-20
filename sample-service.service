@@ -1,0 +1,15 @@
+[Unit]
+Description=fairu-chan
+#After=<some required mounts maybe>
+
+[Service]
+# Assuming installed to /opt/fairu-chan, config in /etc/ directory.
+Environment=PERL5LIB=/opt/fairu-chan/lib
+ExecStart=/opt/fairu-chan/fairu-chan /etc/fairu-chan.yml daemon
+ExecReload=/bin/kill -SIGUSR2 $MAINPID
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
