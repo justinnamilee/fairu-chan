@@ -62,7 +62,7 @@ data:
       recurse: true
       basePath: /home/justin/Downloads
       # noticed <a> is inside <b>, totally fine
-      inRegex: "(?<b>\[VideoGroupTag\] (?<a>.+?)(?:\.)?(?: - \d+)? (?:\(|\[).+\.(?i:mkv|mp4|avi)$"
+      inRegex: "(?<b>\[VideoGroupTag\] (?<a>.+?)(?:\.)?(?: - \d+)? (?:\(|\[).+\.(?i:mkv|mp4|avi))$"
     outFile:
       basePath: "/mnt/nas/Video"
       # paths will be created as needed
