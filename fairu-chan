@@ -13,14 +13,14 @@ use fairu::chan qw[uwu]; # owo
 sub IDX_MODE() { 1 }
 sub IDX_FILE() { 0 }
 sub DEF_IDLE() { 600 }
-sub DEF_WAIT() { 30 }
+sub DEF_WAIT() { 5 }
 
 
 # global stuff
-my $mode = 0;
-my $file = $ARGV[IDX_FILE];
-my $run  = 0;
-my $idle = 0;
+my $action = 0;
+my $file   = $ARGV[IDX_FILE];
+my $run    = 0;
+my $idle   = 0;
 
 # signal handlers
 $SIG{TERM} = sub { $run = 0 };
@@ -28,15 +28,15 @@ $SIG{USR1} = sub { $idle = 0 };
 $SIG{USR2} = sub { fairu::config::parse($file) };
 
 # set the run mode
-$mode = 1, $run = 0 if (lc($ARGV[IDX_MODE]) eq q[run]);
-$mode = 1, $run = 1 if (lc($ARGV[IDX_MODE]) eq q[daemon]);
+$action = 1, $run = 0 if (lc($ARGV[IDX_MODE]) eq q[run]);
+$action = 1, $run = 1 if (lc($ARGV[IDX_MODE]) eq q[daemon]);
 
 # config some stuff
 exit 1 unless (fairu::config::parse($file) == 0);
 $idle = (meta->{idleTime} || DEF_IDLE) if ($run == 1);
 
 # first run
-uwu($mode); #* the best part of programming is naming your own functions
+uwu($action); #* the best part of programming is naming your own functions
 
 # go daemon if requested
 while ($run)
@@ -47,7 +47,7 @@ while ($run)
   {
     $idle = meta->{idleTime} || DEF_IDLE;
 
-    uwu($mode); #* let's do this forever, m'kay, owo
+    uwu($action);
   }
 
   $idle -= meta->{waitTime} || DEF_WAIT;

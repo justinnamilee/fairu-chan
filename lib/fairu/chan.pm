@@ -24,6 +24,10 @@ sub scanFiles($$)
   {
     @f = map { ($recurse && -d) ? scanFiles($recurse, $_) : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($d);
   }
+  else
+  {
+    warn qq[Unabled to open path: $path\n];
+  }
 
   return (@f);
 }
@@ -71,10 +75,13 @@ sub matchFiles($)
             map
             {
               exists($group->{mapFunction}->{$_})
+
                 #? apply a "local" mapping function if it exists
                 ? $group->{mapFunction}->{$_}->($+{$_})
+                
                 #? if not, try a "global" mapping function, otherwise return the raw data
                 : (exists(meta->{mapFunction}->{$_}) ? meta->{mapFunction}->{$_}->($+{$_}) : $+{$_})
+
             #? from the %+ we take data in lexical order (https://perldoc.perl.org/functions/sort) 
             } sort keys(%+)
           )

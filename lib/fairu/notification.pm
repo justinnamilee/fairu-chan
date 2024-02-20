@@ -21,7 +21,7 @@ sub init($)
 
   if (ref($config) eq q[HASH])
   {
-    if (ref($config->{discord}))
+    if (exists($config->{discord}))
     {
       if (fairu::notification::discord::init($config->{discord}) == 0)
       {

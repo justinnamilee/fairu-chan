@@ -13,43 +13,50 @@ my $template = undef;
 
 sub init($)
 {
-  require Data::Validate::URI;
-
   my ($error, $config) = (0, @_);
-
-  $config->{verify} = 1 unless defined($config->{verify});
-
-  if (Data::Validate::URI::is_https_uri($config->{webhookUrl}))
+  
+  if (ref($config) eq q[HASH])
   {
-    require WebService::Discord::Webhook;
-    my $d = WebService::Discord::Webhook->new(url => $config->{webhookUrl}, verify_SSL => $config->{verify});
+    require Data::Validate::URI;
 
-    eval { $d->get };
+    $config->{verify} = 1 unless defined($config->{verify});
 
-    if ($@)
+    if (Data::Validate::URI::is_https_uri($config->{webhookUrl}))
     {
-      warn qq[Couldn't configure Discord: $@\n];
-      $error++;
+      require WebService::Discord::Webhook;
+      my $d = WebService::Discord::Webhook->new(url => $config->{webhookUrl}, verify_SSL => $config->{verify});
+
+      eval { $d->get };
+
+      if ($@)
+      {
+        warn qq[Couldn't configure Discord: $@\n];
+        $error++;
+      }
+      else
+      {
+        $hook = $d;
+      }
     }
     else
     {
-      $hook = $d;
+      warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL string\n];
+      $error++;
+    }
+
+    if (length($config->{template}) > 0)
+    {
+      $template = $config->{template};
+    }
+    else
+    {
+      warn qq[Couldn't configure Discord: template should be a non-zero length string\n];
+      $error++;
     }
   }
   else
   {
-    warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL string\n];
-    $error++;
-  }
-
-  if (length($config->{template}) > 0)
-  {
-    $template = $config->{template};
-  }
-  else
-  {
-    warn qq[Couldn't configure Discord: template should be a non-zero length string\n];
-    $error++;
+    warn qq[Couldn't configure Discord: config should be a HASH\n]
   }
 
   return ($error);

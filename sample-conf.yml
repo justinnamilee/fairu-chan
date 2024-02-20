@@ -1,0 +1,66 @@
+---
+
+# (OPTIONAL) whole section is optional, you can omit it
+meta:
+  # (OPTINAL) global recurse flag for the scan directories, default false
+  recurse: false
+  # (OPTINAL) how many seconds between runs if daemonizing, default 600
+  idleTime: 200
+  # (OPTIONAL) how many seconds between checks, default 5 [probably leave it at 5]
+  waitTime: 13
+  # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too
+  mapFunction:
+    # the name should match a capture group, and it will be passed the data from that group
+    a_epnum: "sub { uc shift }"
+  # (OPTIONAL) remove notification field or leave undefined if you don't want one
+  notification:
+    discord:
+      webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
+      template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
+
+# (REQUIRED) here you'll have your groups
+data:
+  # you can name the groupings whatever you want
+  nameOfGrouping:
+    # (OPTIONAL) this should be copy or move, default to copy
+    fileMode: copy
+    # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too
+    mapFunction:
+      # for example, convert the b_second data to lower case
+      b_second: "sub { lc shift }"
+    # (REQURIED) location that files will be in originally
+    inFile:
+      # (OPTIONAL) recursively
+      recurse: true
+      # (REQUIRED) where are the files tho?
+      basePath: /path/to/input/folder
+      # (REQUIRED) regex for matching, use NAMED capture groups to extract data (?<name>regex)
+      inRegex: "Some Stuff Here - (?<a_first>\d\d)(?<b_second>(?i:v\d+)? .+)"
+    # (REQUIRED) where do you want them to go?
+    outFile:
+      # (REQUIRED) what's the path, bro
+      basePath: "/home/justin/Videos"
+      # the capture groups will be sorted (lexical) then put into this sprintf
+      outSprintf: "Maybe Different Stuff - %03d - %s"
+
+  # more examples follow
+  pictureSorter:
+    fileMode: move
+    inFile:
+      basePath: /home/justin/Pictures
+      inRegex: "DCIM(?<a_picnum>\d+)_(?<b_date>\d\d\d\d-\d\d-\d\d)(?<c_extra>.+)\.(?i:jpe?g)"
+    outFile:
+      basePath: "/home/justin/Pictures"
+      outSprintf: "picture[%05d] from %s - %s.jpg"
+
+  matchTaggedRecursive:
+    fileMode: copy
+    inFile:
+      recurse: true
+      basePath: /home/justin/Downloads
+      # noticed <a> is inside <b>, totally fine
+      inRegex: "(?<b>\[VideoGroupTag\] (?<a>.+?)(?:\.)?(?: - \d+)? (?:\(|\[).+\.(?i:mkv|mp4|avi)$"
+    outFile:
+      basePath: "/mnt/nas/Video"
+      # paths will be created as needed
+      outSprintf: "%s/%s"

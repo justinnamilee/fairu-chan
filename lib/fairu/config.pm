@@ -12,6 +12,12 @@ our @EXPORT_OK = qw[meta data];
 
 
 ###
+# constants
+
+sub DEF_MODE() { q[copy] }
+
+
+###
 # storage for my stuff
 
 my $config = undef;
@@ -29,6 +35,7 @@ sub data() { ref($config) ? $config->{data} : {} }
 
 sub yaml2bool(_)
 {
+  # no need for fc() if you stick to ascii
   return (lc($_[0]) eq q[true] || $_[0] == 1);
 }
 
@@ -40,14 +47,6 @@ sub validateGrouping($$)
   unless (ref($group) eq 'HASH')
   {
     warn qq[Failed to validate config($title): grouping should be a hash];
-    $error++;
-  }
-
-  $group->{fileMode} = lc($group->{fileMode});
-
-  unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
-  {
-    warn qq[Failed to validate config($title): fileMode should be 'copy' or 'move'\n];
     $error++;
   }
 
@@ -82,9 +81,18 @@ sub validateGrouping($$)
   }
 
   #* optional... options for a group
-  if (defined($group->{recurse}))
+  $group->{fileMode} = DEF_MODE unless (defined($group->{fileMode}));
+  $group->{fileMode} = lc($group->{fileMode});
+
+  unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
   {
-    $group->{recurse} = yaml2bool($group->{recurse});
+    warn qq[Failed to validate config($title): fileMode should be 'copy' or 'move'\n];
+    $error++;
+  }
+
+  if (defined($group->{inFile}->{recurse}))
+  {
+    $group->{inFile}->{recurse} = yaml2bool($group->{inFile}->{recurse});
   }
 
   if (defined($group->{mapFunction}))
