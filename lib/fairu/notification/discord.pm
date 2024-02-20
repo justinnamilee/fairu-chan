@@ -56,7 +56,8 @@ sub init($)
   }
   else
   {
-    warn qq[Couldn't configure Discord: config should be a HASH\n]
+    warn qq[Couldn't configure Discord: config should be a HASH\n];
+    $error++;
   }
 
   return ($error);

@@ -26,7 +26,7 @@ sub init($)
       {
         if (fairu::notification::discord::init($config->{$k}) == 0)
         {
-          $notification->{$k} = fairu::notification::discord::handler();
+          $notification->{$k} = fairu::notification::discord::handler;
         }
         else
         {
