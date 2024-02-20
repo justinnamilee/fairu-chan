@@ -16,7 +16,7 @@ If you omit "run" it will just tell you what it _would_ do, but won't do it (use
 
 When you build the config file, if you want to make use of capture groups for the output you *NEED* to use _named_ captured groups like `(?<a_something>\d\d)` or `(?<b_thing> - \S+)`.  These get [lexically sorted](https://perldoc.perl.org/functions/sort) and put into `sprintf()` for ease of use.
 
-If you want Discord support include the "discord" section as shown in the example, otherwise don't include it in the config at all.  You'll need to install the [WebService::Discord::Webhook](https://metacpan.org/pod/WebService::Discord::Webhook), [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL), and [Data::Validate::URI](https://metacpan.org/pod/Data::Validate::URI) Perl modules to use it.  I will likely add other notification types if I desire them...
+If you want Discord support include the "notification" section as shown in the example config, otherwise don't include it in the config at all.  You'll need to install the [WebService::Discord::Webhook](https://metacpan.org/pod/WebService::Discord::Webhook), [IO::Socket::SSL](https://metacpan.org/pod/IO::Socket::SSL), and [Data::Validate::URI](https://metacpan.org/pod/Data::Validate::URI) Perl modules to use it.  I will likely add other notification types if I desire them...
 
 # Signals when daemonized?
 - `SIGTERM` will gracefully exit after current sleep or operation finishes.

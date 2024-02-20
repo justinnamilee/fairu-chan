@@ -14,7 +14,8 @@ meta:
     a_epnum: "sub { uc shift }"
   # (OPTIONAL) remove notification field or leave undefined if you don't want one
   notification:
-    discord:
+    discord1:
+      type: discord
       webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
       template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
 

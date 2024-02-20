@@ -6,7 +6,7 @@ use lib q[lib]; # for linter
 
 
 use fairu::config q[meta];
-use fairu::chan qw[uwu]; # owo
+use fairu::chan; # owo
 
 
 # perl "constants" the old school way
@@ -40,7 +40,7 @@ exit 1 unless (fairu::config::parse($file) == 0);
 $idle = (meta->{idleTime} || DEF_IDLE) if ($run == 1);
 
 # first run
-uwu($action); #* the best part of programming is naming your own functions
+fairu::chan::uwu($action);
 
 # go daemon if requested
 while ($run)
@@ -58,7 +58,7 @@ while ($run)
   {
     $idle = meta->{idleTime} || DEF_IDLE;
 
-    uwu($action);
+    fairu::chan::uwu($action);
   }
 }
 

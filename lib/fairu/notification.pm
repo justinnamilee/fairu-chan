@@ -8,11 +8,10 @@ use lib q[lib];
 
 
 use fairu::notification::discord;
-use Exporter q[import];
-our @EXPORT_OK = qw[notify];
+# TODO: more notification types here?
 
 
-my $notification = [];
+my $notification = {};
 
 
 sub init($)
@@ -21,18 +20,21 @@ sub init($)
 
   if (ref($config) eq q[HASH])
   {
-    if (exists($config->{discord}))
+    foreach my $k (keys(%{$config}))
     {
-      if (fairu::notification::discord::init($config->{discord}) == 0)
+      if (lc($config->{$k}->{type}) eq q[discord])
       {
-        push(@{$notification}, fairu::notification::discord->handler);
+        if (fairu::notification::discord::init($config->{$k}) == 0)
+        {
+          $notification->{$k} = fairu::notification::discord::handler;
+        }
+        else
+        {
+          warn qq[Couldn't configure notification($k)];
+          $error++;
+        }
       }
-      else
-      {
-        $error++;
-      }
-
-      #TODO add more notification types here
+      # TODO: elsif (other notification types)
     }
   }
   elsif (defined($config))
@@ -47,7 +49,7 @@ sub init($)
 sub notify(@)
 {
   #? we'll YOLO these notifications with eval for now, no need to crash
-  eval { $_->(@_) for @{$notification} };
+  eval { $notification->{$_}->(@_) for keys(%{$notification}) };
   warn qq[Ran into notification sending issues.\n] if ($@);
 }
 

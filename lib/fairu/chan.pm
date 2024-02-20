@@ -8,12 +8,10 @@ use lib q[lib];
 
 
 use fairu::config qw[meta data];
-use fairu::notification q[notify];
+use fairu::notification;
 use File::Spec;
 use File::Copy;
 use File::Path;
-use Exporter q[import];
-our @EXPORT_OK = qw[uwu];
 
 
 sub recursive($)
@@ -127,7 +125,7 @@ sub uwu($)
     {
       if (($mode eq q[move] && move($k, $j)) || ($mode eq q[copy] && copy($k, $j)))
       {
-        notify($f); # tell the whole world above it, if we're supposed to
+        fairu::notification::notify($f);
       }
       else
       {
