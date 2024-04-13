@@ -113,32 +113,35 @@ sub uwu($)
   {
     my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
 
-    my ($v, $d, $f) = File::Spec->splitpath($ofile);
-    my $path = File::Spec->join($v, $d);
-
-    if ($action && ! -d $path)
+    unless (-e $ofile)
     {
-      unless (File::Path->make_path($path))
-      {
-        warn qq[Failed to create path: $path\n];
-        $error++;
-      }
-    }
+      my ($v, $d, $f) = File::Spec->splitpath($ofile);
+      my $path = File::Spec->join($v, $d);
 
-    if ($action && -d $path && ! -e $ofile)
-    {
-      if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
+      if ($action && ! -d $path)
       {
-        fairu::notification::notify($f);
+        unless (File::Path->make_path($path))
+        {
+          warn qq[Failed to create path: $path\n];
+          $error++;
+        }
       }
-      else
-      {
-        warn qq[Failed to $mode '$ifile' to '$ofile': $!\n];
-        $error++;
-      }
-    }
 
-    print qq[\u$mode: '$ifile' -> '$ofile'\n];
+      if ($action && -d $path)
+      {
+        if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
+        {
+          fairu::notification::notify($f);
+        }
+        else
+        {
+          warn qq[Failed to $mode '$ifile' to '$ofile': $!\n];
+          $error++;
+        }
+      }
+
+      print qq[\u$mode: '$ifile' -> '$ofile'\n];
+    }
   }
 
   return ($error);
