@@ -69,7 +69,16 @@ sub matchFiles($)
       if ($f =~ $match)
       {
         #? check for match at lower precedence value (undef == +inf), skip this match if one is found found
-        unless (exists($map->{$file}) && (!defined($group->{precedence}) || $group->{precedence} >= $map->{$file}->{precedence}))
+        unless
+        (
+          exists($map->{$file}) &&
+          (
+            !defined($group->{precedence}) ||
+            (
+              defined($map->{$file}->{precedence}) && $group->{precedence} >= $map->{$file}->{precedence}
+            )
+          )
+        )
         {
           #? get the output file name
           my $out = File::Spec->join
@@ -113,7 +122,7 @@ sub uwu($)
   {
     my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
 
-    unless (-e $ofile)
+    if (defined($ofile) && ! -e $ofile)
     {
       my ($v, $d, $f) = File::Spec->splitpath($ofile);
       my $path = File::Spec->join($v, $d);
