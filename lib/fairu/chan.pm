@@ -90,7 +90,7 @@ sub matchFiles($)
           )
         );
 
-        $map->{$file} = {mode => $group->{fileMode}, file => $out} unless (-e $out);
+        $map->{$file} = {mode => $group->{fileMode}, file => $out};
       }
     }
   }
@@ -105,11 +105,11 @@ sub uwu($)
   my $cache = getFiles();
   my $map = matchFiles($cache);
 
-  foreach my $k (keys(%{$map}))
+  foreach my $ifile (keys(%{$map}))
   {
-    my ($mode, $j) = ($map->{$k}->{mode}, $map->{$k}->{file});
+    my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
 
-    my ($v, $d, $f) = File::Spec->splitpath($j);
+    my ($v, $d, $f) = File::Spec->splitpath($ofile);
     my $path = File::Spec->join($v, $d);
 
     if ($action && ! -d $path)
@@ -121,20 +121,20 @@ sub uwu($)
       }
     }
 
-    if ($action && -d $path)
+    if ($action && -d $path && ! -e $ofile)
     {
-      if (($mode eq q[move] && move($k, $j)) || ($mode eq q[copy] && copy($k, $j)))
+      if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
       {
         fairu::notification::notify($f);
       }
       else
       {
-        warn qq[Failed to $mode '$k' to '$j': $!\n];
+        warn qq[Failed to $mode '$ifile' to '$ofile': $!\n];
         $error++;
       }
     }
 
-    print qq[\u$mode: '$k' -> '$j'\n];
+    print qq[\u$mode: '$ifile' -> '$ofile'\n];
   }
 
   return ($error);
