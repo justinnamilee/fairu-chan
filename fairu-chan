@@ -53,6 +53,8 @@ fairu::chan::uwu($action);
 # go daemon if requested
 while ($run)
 {
+  $watch->scan if defined($watch);
+
   sleep(meta->{waitTime} || DEF_WAIT);
   $idle -= meta->{waitTime} || DEF_WAIT;
 
