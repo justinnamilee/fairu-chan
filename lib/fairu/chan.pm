@@ -71,10 +71,13 @@ sub matchFiles($)
         #? check for match at lower precedence value (undef == +inf), skip this match if one is found found
         unless
         (
+          # SKIP if there's already a match
           exists($map->{$file}) &&
           (
+            # and this group has no precedence
             !defined($group->{precedence}) ||
             (
+              # or there's a precendence on this existing match and our precedence is higher
               defined($map->{$file}->{precedence}) && $group->{precedence} >= $map->{$file}->{precedence}
             )
           )
