@@ -2,7 +2,7 @@
 
 # (OPTIONAL) whole section is optional, you can omit it
 meta:
-  # (OPTIONAL) reload the config automatically on change?
+  # (OPTIONAL) reload the config automatically on change? (requires File::Monitor)
   autoreload: false
   # (OPTINAL) global recurse flag for the scan directories, default false
   recurse: false
@@ -10,11 +10,13 @@ meta:
   idleTime: 200
   # (OPTIONAL) how many seconds between checks, default 5 [probably leave it at 5]
   waitTime: 13
-  # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too
+  # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too,
+  #            these are automatically wrapped in "sub { }" inside the script;
+  #            these maps apply to ALL matches as opposed to the ones that are in the groupings
   mapFunction:
-    # the name should match a capture group, and it will be passed the data from that group
-    a_epnum: "sub { uc shift }"
-  # (OPTIONAL) remove notification field or leave undefined if you don't want one
+    # the name should match a capture group, and it will be passed the data from that group;
+    a_epnum: "uc shift"
+  # (OPTIONAL) remove notification field or leave undefined if you don't want one, see README
   notification:
     # name of the notification, you could have mutliple discord notifications sent, for example
     discord1:
@@ -25,14 +27,20 @@ meta:
 
 # (REQUIRED) here you'll have your groups
 data:
-  # you can name the groupings whatever you want
+  # you can name the groupings whatever you want, they are taken unsorted
   nameOfGrouping:
+    # (OPTIONAL) if more than one match applies, take the one with lower precedence value,
+    #            undef counts as +inf; if neither match has precedence defined then which
+    #            ever hash key is hit first will be chosen (these are not sorted)
+    precedence: 100
     # (OPTIONAL) this should be copy or move, default to copy
     fileMode: copy
-    # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too
+    # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too,
+    #            these are automatically wrapped in "sub { }" inside the script; note
+    #            mapFunction in a grouping overrides a matching mapFunction globally
     mapFunction:
       # for example, convert the b_second data to lower case
-      b_second: "sub { lc shift }"
+      b_second: "lc shift"
     # (REQURIED) location that files will be in originally
     inFile:
       # (OPTIONAL) recursively
@@ -44,25 +52,26 @@ data:
     # (REQUIRED) where do you want them to go?
     outFile:
       # (REQUIRED) what's the path, bro
-      basePath: "/home/justin/Videos"
+      basePath: "/home/jdog/Videos"
       # the capture groups will be sorted (lexical) then put into this sprintf
       outSprintf: "Maybe Different Stuff - %03d - %s"
 
-  # more examples follow
+  # sort pictures or something
   pictureSorter:
     fileMode: move
     inFile:
-      basePath: /home/justin/Pictures
+      basePath: /home/jdog/Pictures
       inRegex: "DCIM(?<a_picnum>\d+)_(?<b_date>\d\d\d\d-\d\d-\d\d)(?<c_extra>.+)\.(?i:jpe?g)"
     outFile:
-      basePath: "/home/justin/Pictures"
+      basePath: "/home/jdog/Pictures"
       outSprintf: "picture[%05d] from %s - %s.jpg"
 
+  # this takes any file from "[VideoGroupTag]" and sorts it into it's own subdirectory
   matchTaggedRecursive:
     fileMode: copy
     inFile:
       recurse: true
-      basePath: /home/justin/Downloads
+      basePath: /home/jdog/Downloads
       # noticed <a> is inside <b>, totally fine
       inRegex: "(?<b>\[VideoGroupTag\] (?<a>.+?)(?:\.)?(?: - \d+)? (?:\(|\[).+\.(?i:mkv|mp4|avi))$"
     outFile:

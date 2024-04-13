@@ -68,29 +68,33 @@ sub matchFiles($)
 
       if ($f =~ $match)
       {
-        #? get the output file name
-        my $out = File::Spec->join
-        (
-          $group->{outFile}->{basePath},
-          sprintf(
-            $group->{outFile}->{outSprintf},
-            #? build the insertion list for the sprintf from named matches (%+)
-            map
-            {
-              exists($group->{mapFunction}->{$_})
+        #? check for match at lower precedence value (undef == +inf), skip this match if one is found found
+        unless (exists($map->{$file}) && (!defined($group->{precedence}) || $group->{precedence} >= $map->{$file}->{precedence}))
+        {
+          #? get the output file name
+          my $out = File::Spec->join
+          (
+            $group->{outFile}->{basePath},
+            sprintf(
+              $group->{outFile}->{outSprintf},
+              #? build the insertion list for the sprintf from named matches (%+)
+              map
+              {
+                exists($group->{mapFunction}->{$_})
 
-                #? apply a "local" mapping function if it exists
-                ? $group->{mapFunction}->{$_}->($+{$_})
+                  #? apply a "local" mapping function if it exists
+                  ? $group->{mapFunction}->{$_}->($+{$_})
 
-                #? if not, try a "global" mapping function, otherwise return the raw data
-                : (exists(meta->{mapFunction}->{$_}) ? meta->{mapFunction}->{$_}->($+{$_}) : $+{$_})
+                  #? if not, try a "global" mapping function, otherwise return the raw data
+                  : (exists(meta->{mapFunction}->{$_}) ? meta->{mapFunction}->{$_}->($+{$_}) : $+{$_})
 
-            #? from the %+ we take data in lexical order (https://perldoc.perl.org/functions/sort)
-            } sort keys(%+)
-          )
-        );
+              #? from the %+ we take data in lexical order (https://perldoc.perl.org/functions/sort)
+              } sort keys(%+)
+            )
+          );
 
-        $map->{$file} = {mode => $group->{fileMode}, file => $out};
+          $map->{$file} = {mode => $group->{fileMode}, file => $out, precedence => $group->{precedence}};
+        }
       }
     }
   }

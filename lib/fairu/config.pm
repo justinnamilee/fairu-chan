@@ -102,7 +102,7 @@ sub validateGrouping($$)
       foreach my $map (keys(%{$group->{mapFunction}}))
       {
         #? try to compile the local mappings, these override global mappings if conflicting
-        $group->{mapFunction}->{$map} = eval $group->{mapFunction}->{$map};
+        $group->{mapFunction}->{$map} = eval qq[sub { $group->{mapFunction}->{$map} }];
 
         if ($@ || ref($group->{mapFunction}->{$map}) ne q[CODE])
         {
@@ -160,7 +160,7 @@ sub validateMeta($)
       foreach my $map (keys(%{$meta->{mapFunction}}))
       {
         #? try to compile the global mappings
-        $meta->{mapFunction}->{$map} = eval $meta->{mapFunction}->{$map};
+        $meta->{mapFunction}->{$map} = eval qq[sub { $meta->{mapFunction}->{$map} }];
 
         if ($@ || ref($meta->{mapFunction}->{$map} ne q[CODE]))
         {
@@ -228,7 +228,6 @@ sub parse($)
     }
     else
     {
-      # should probably warn about these next two lines... probably
       $newConfig->{meta} = {} unless (ref($newConfig->{meta}) eq q[HASH]);
       $newConfig->{data} = {} unless (ref($newConfig->{data}) eq q[HASH]);
 
