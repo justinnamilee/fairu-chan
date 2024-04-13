@@ -22,6 +22,7 @@ my $file   = $ARGV[IDX_FILE];
 my $run    = 0;
 my $idle   = 0;
 my $reload = 0;
+my $watch  = undef;
 
 # setup autoflush
 our $| = 1;
@@ -38,6 +39,13 @@ $action = 1, $run = 1 if (lc($ARGV[IDX_MODE]) eq q[daemon]);
 # config some stuff
 exit 1 unless (fairu::config::parse($file) == 0);
 $idle = (meta->{idleTime} || DEF_IDLE) if ($run == 1);
+
+if ($run && meta->{autoreload})
+{
+  require File::Monitor;
+  $watch = File::Monitor->new();
+  $watch->watch($file, sub { $reload = 1, $idle = 0 });
+}
 
 # first run
 fairu::chan::uwu($action);

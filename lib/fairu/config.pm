@@ -126,6 +126,11 @@ sub validateMeta($)
   my ($error, $meta) = (0, @_);
 
   #* optional... options for meta
+  if (defined($meta->{autoreload}))
+  {
+    $meta->{autoreload} = yaml2bool($meta->{autoreload});
+  }
+
   if (defined($meta->{recurse}))
   {
     $meta->{recurse} = yaml2bool($meta->{recurse});

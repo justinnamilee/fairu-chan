@@ -2,6 +2,8 @@
 
 # (OPTIONAL) whole section is optional, you can omit it
 meta:
+  # (OPTIONAL) reload the config automatically on change?
+  autoreload: false
   # (OPTINAL) global recurse flag for the scan directories, default false
   recurse: false
   # (OPTINAL) how many seconds between runs if daemonizing, default 600
