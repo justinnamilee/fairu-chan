@@ -132,7 +132,7 @@ sub uwu($)
 
       if ($action && ! -d $path)
       {
-        unless (File::Path->make_path($path))
+        unless (File::Path::make_path($path))
         {
           warn qq[Failed to create path: $path\n];
           $error++;
