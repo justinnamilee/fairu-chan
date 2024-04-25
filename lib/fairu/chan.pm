@@ -125,12 +125,12 @@ sub uwu($)
   {
     my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
 
-    if (defined($ofile) && ! -e $ofile)
+    if (length($ofile) && ! -e $ofile)
     {
       my ($v, $d, $f) = File::Spec->splitpath($ofile);
       my $path = File::Spec->join($v, $d);
 
-      if ($action && ! -d $path)
+      if ($action && length($path) && ! -d $path)
       {
         unless (File::Path::make_path($path))
         {
