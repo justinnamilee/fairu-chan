@@ -7,6 +7,32 @@ use strict;
 use lib q[lib];
 
 
+sub DEF_VRF() { 1 }
+
+
+my $loaded = undef;
+
+
+sub new($)
+{
+  my ($error, $self, $config) = (0, @_);
+
+  unless (defined($loaded))
+  {
+    require WebService::Discord::Webhook;
+    require Data::Validate::URI;
+    $loaded = __PACKAGE__;
+  }
+
+  my $notification = { hook => undef, template => undef };
+  my $verify = defined($config->{verify}) ? $config->{verify} : DEF_VRF;
+
+  if (Data::Validate::URI::is_https_urii()){};
+
+  return ($error > 0 ? $error : (bless $self, $notification));
+}
+
+
 my $hook = undef;
 my $template = undef;
 

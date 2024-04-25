@@ -11,7 +11,7 @@ use fairu::notification::discord;
 # TODO: more notification types here?
 
 
-my $notification = {};
+my $notification = {internal => {}, action => {}};
 
 
 sub init($)
