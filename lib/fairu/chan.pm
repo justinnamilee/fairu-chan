@@ -121,7 +121,10 @@ sub uwu($)
   my $cache = getFiles();
   my $map = matchFiles($cache);
 
-  fairu::notification::internal(sprintf(q[Matched %d files.], int(keys(%{$map}))));
+  if (int(keys(%{$map})) > 0)
+  {
+    fairu::notification::internal(sprintf(q[Matched %d files.], int(keys(%{$map}))));
+  }
 
   foreach my $ifile (keys(%{$map}))
   {

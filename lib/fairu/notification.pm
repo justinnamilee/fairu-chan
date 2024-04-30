@@ -54,7 +54,7 @@ sub notify($@)
   if (ref($notification->{$mode}) eq q[ARRAY])
   {
     #? we'll YOLO these notifications with eval for now, no need to crash
-    eval { $_->(@data) for @{$notification->{$mode}} };
+    eval { $_->handler(@data) for @{$notification->{$mode}} };
     warn qq[Ran into notification sending issues.\n] if ($@);
   }
 }
