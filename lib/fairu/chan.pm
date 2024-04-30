@@ -116,15 +116,10 @@ sub matchFiles($)
 
 sub uwu($)
 {
-  my ($error, $action) = (0, @_);
+  my ($error, $count, $action) = (0, 0, @_);
 
   my $cache = getFiles();
   my $map = matchFiles($cache);
-
-  if (int(keys(%{$map})) > 0)
-  {
-    fairu::notification::internal(sprintf(q[Matched %d files.], int(keys(%{$map}))));
-  }
 
   foreach my $ifile (keys(%{$map}))
   {
@@ -149,6 +144,7 @@ sub uwu($)
         if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
         {
           fairu::notification::action($f);
+          $count++
         }
         else
         {
@@ -160,6 +156,8 @@ sub uwu($)
       print qq[\u$mode: '$ifile' -> '$ofile'\n];
     }
   }
+
+  fairu::notification::internal(sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
 
   return ($error);
 }
