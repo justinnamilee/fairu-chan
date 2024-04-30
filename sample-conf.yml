@@ -29,7 +29,7 @@ meta:
     # this one will be used for internal cause it has the "for: internal" tag
     discord_internal:
       type: discord
-      webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
+      webhookUrl: https://discord.com/api/webhooks/420420420/jkshraqkudaihfjkseafhaksjhd
       template: ":crocodile: Fairu-chan says, '%s.'"
       for: internal
 
