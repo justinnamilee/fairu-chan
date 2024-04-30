@@ -15,53 +15,36 @@ my $loaded = undef;
 
 sub new($)
 {
-  my ($error, $self, $config) = (0, @_);
+  my ($error, $notification, $self, $config) = (0, { hook => undef, template => undef }, @_);
 
-  unless (defined($loaded))
+  if (ref($config) eq q[HASH] && length($config->{template}) > 0)
   {
-    require WebService::Discord::Webhook;
-    require Data::Validate::URI;
-    $loaded = __PACKAGE__;
-  }
+    $notification->{template} = $config->{template};
 
-  my $notification = { hook => undef, template => undef };
-  my $verify = defined($config->{verify}) ? $config->{verify} : DEF_VRF;
+    unless (defined($loaded))
+    {
+      require Data::Validate::URI;
+      require WebService::Discord::Webhook;
+      $loaded = __PACKAGE__;
+    }
 
-  if (Data::Validate::URI::is_https_urii()){};
-
-  return ($error > 0 ? $error : (bless $self, $notification));
-}
-
-
-my $hook = undef;
-my $template = undef;
-
-
-sub init($)
-{
-  my ($error, $config) = (0, @_);
-
-  if (ref($config) eq q[HASH])
-  {
-    require Data::Validate::URI;
-
-    $config->{verify} = 1 unless defined($config->{verify});
+    my $verify = defined($config->{verify}) ? $config->{verify} : DEF_VRF;
 
     if (Data::Validate::URI::is_https_uri($config->{webhookUrl}))
     {
-      require WebService::Discord::Webhook;
       my $d = WebService::Discord::Webhook->new(url => $config->{webhookUrl}, verify_SSL => $config->{verify});
 
+      #? do a connection test / get the webhook thingie
       eval { $d->get };
 
       if ($@)
       {
-        warn qq[Couldn't configure Discord: $@\n];
+        warn qq[Couldn't "get" on Discord webhook: $@\n];
         $error++;
       }
       else
       {
-        $hook = $d;
+        $notification->{hook} = $d;
       }
     }
     else
@@ -69,29 +52,21 @@ sub init($)
       warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL string\n];
       $error++;
     }
-
-    if (length($config->{template}) > 0)
-    {
-      $template = $config->{template};
-    }
-    else
-    {
-      warn qq[Couldn't configure Discord: template should be a non-zero length string\n];
-      $error++;
-    }
   }
   else
   {
-    warn qq[Couldn't configure Discord: config should be a HASH\n];
+    warn qq[Couldn't configure Discord: config should be a HASH and template should be non-zero length string\n];
     $error++;
   }
 
-  return ($error);
+  return ($error > 0 ? $error : (bless $self, $notification));
 }
 
-sub handler()
+sub handler(@)
 {
-  return (sub { $hook->execute(sprintf($template, @_)) });
+  my ($self, @data) = @_;
+
+  $self->{hook}->execute(sprintf($self->{template}, @data));
 }
 
 

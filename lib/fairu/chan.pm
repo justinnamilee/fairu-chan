@@ -121,6 +121,8 @@ sub uwu($)
   my $cache = getFiles();
   my $map = matchFiles($cache);
 
+  fairu::notification::internal(sprintf(q[Matched %d files.], int(keys(%{$map}))));
+
   foreach my $ifile (keys(%{$map}))
   {
     my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
@@ -143,7 +145,7 @@ sub uwu($)
       {
         if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
         {
-          fairu::notification::notify($f);
+          fairu::notification::action($f);
         }
         else
         {

@@ -11,7 +11,7 @@ use fairu::notification::discord;
 # TODO: more notification types here?
 
 
-my $notification = {internal => {}, action => {}};
+my $notification = {internal => [], action => []};
 
 
 sub init($)
@@ -24,9 +24,10 @@ sub init($)
     {
       if (lc($config->{$k}->{type}) eq q[discord])
       {
-        if (fairu::notification::discord::init($config->{$k}) == 0)
+        if (ref(my $n = fairu::notification::discord->new($config->{$k})))
         {
-          $notification->{$k} = fairu::notification::discord::handler;
+          push(@{$notification->{internal}}, $n) if lc($config->{$k}->{for}) eq q[internal] || !exists($config->{$k}->{for});
+          push(@{$notification->{action}}, $n) if lc($config->{$k}->{for}) eq q[action] || !exists($config->{$k}->{for});
         }
         else
         {
@@ -46,12 +47,21 @@ sub init($)
   return ($error);
 }
 
-sub notify(@)
+sub notify($@)
 {
-  #? we'll YOLO these notifications with eval for now, no need to crash
-  eval { $notification->{$_}->(@_) for keys(%{$notification}) };
-  warn qq[Ran into notification sending issues.\n] if ($@);
+  my ($mode, @data) = @_;
+
+  if (ref($notification->{$mode}) eq q[ARRAY])
+  {
+    #? we'll YOLO these notifications with eval for now, no need to crash
+    eval { $_->(@data) for @{$notification->{$mode}} };
+    warn qq[Ran into notification sending issues.\n] if ($@);
+  }
 }
+
+sub debug(@) { notify(q[debug], @_) }
+sub action(@) { notify(q[action], @_) }
+sub internal(@) { notify(q[internal], @_) }
 
 
 __PACKAGE__
