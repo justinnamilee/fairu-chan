@@ -59,7 +59,7 @@ sub new($)
     $error++;
   }
 
-  return ($error > 0 ? $error : (bless $self, $notification));
+  return ($error > 0 ? $error : (bless $notification, $self));
 }
 
 sub handler(@)
