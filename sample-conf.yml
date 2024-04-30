@@ -24,14 +24,14 @@ meta:
       type: discord
       webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
       template: "Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:"
-      # (OPTIONAL) which messages does this apply? default to ALL; options here are "internal" or "action"
-      for: action
+      # (OPTIONAL) which messages does this apply? default to ALL; options here are "event", "information", or "debug"
+      for: event
     # this one will be used for internal cause it has the "for: internal" tag
     discord_internal:
       type: discord
       webhookUrl: https://discord.com/api/webhooks/420420420/jkshraqkudaihfjkseafhaksjhd
       template: ":crocodile: Fairu-chan says, '%s.'"
-      for: internal
+      for: information
 
 # (REQUIRED) here you'll have your groups
 data:

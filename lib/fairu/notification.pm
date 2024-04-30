@@ -11,7 +11,10 @@ use fairu::notification::discord;
 # TODO: more notification types here?
 
 
-my $notification = {internal => [], action => []};
+sub TYPE() { qw[event information debug] }
+
+
+my $notification = { map { $_ => [] } TYPE };
 
 
 sub init($)
@@ -26,8 +29,10 @@ sub init($)
       {
         if (ref(my $n = fairu::notification::discord->new($config->{$k})))
         {
-          push(@{$notification->{internal}}, $n) if lc($config->{$k}->{for}) eq q[internal] || !exists($config->{$k}->{for});
-          push(@{$notification->{action}}, $n) if lc($config->{$k}->{for}) eq q[action] || !exists($config->{$k}->{for});
+          foreach my $t (TYPE)
+          {
+            push(@{$notification->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
+          }
         }
         else
         {
@@ -47,7 +52,7 @@ sub init($)
   return ($error);
 }
 
-sub notify($@)
+sub send($@)
 {
   my ($mode, @data) = @_;
 
@@ -57,11 +62,11 @@ sub notify($@)
     eval { $_->handler(@data) for @{$notification->{$mode}} };
     warn qq[Ran into notification sending issues.\n] if ($@);
   }
+  else
+  {
+    warn qq[Unknown notification type '$mode'.\n];
+  }
 }
-
-sub debug(@) { notify(q[debug], @_) }
-sub action(@) { notify(q[action], @_) }
-sub internal(@) { notify(q[internal], @_) }
 
 
 __PACKAGE__

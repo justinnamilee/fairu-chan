@@ -143,7 +143,7 @@ sub uwu($)
       {
         if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
         {
-          fairu::notification::action($f);
+          fairu::notification::send(q[action], $f);
           $count++
         }
         else
@@ -157,7 +157,7 @@ sub uwu($)
     }
   }
 
-  fairu::notification::internal(sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
+  fairu::notification::send(q[information], sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
 
   return ($error);
 }

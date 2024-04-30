@@ -247,7 +247,7 @@ sub parse($)
     $config = $newConfig;
     print qq[Config loaded...\n];
 
-    fairu::notification::internal(q[Config loaded...]);
+    fairu::notification::send(q[information], q[Config loaded...]);
   }
   elsif (defined($config))
   {
