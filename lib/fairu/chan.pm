@@ -157,7 +157,7 @@ sub uwu($)
     }
   }
 
-  fairu::notification::send(q[information], sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
+  fairu::notification::send(q[debug], sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
 
   return ($error);
 }
