@@ -14,12 +14,12 @@ use fairu::notification::discord;
 sub TYPE() { qw[event information debug] }
 
 
-my $notification = { map { $_ => [] } TYPE };
+my $notification = undef;
 
 
 sub init($)
 {
-  my ($error, $config) = (0, @_);
+  my ($error, $new, $config) = (0, { map { $_ => [] } TYPE }, @_);
 
   if (ref($config) eq q[HASH])
   {
@@ -31,7 +31,7 @@ sub init($)
         {
           foreach my $t (TYPE)
           {
-            push(@{$notification->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
+            push(@{$new->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
           }
         }
         else
@@ -47,6 +47,12 @@ sub init($)
   {
     warn qq[Couldn't configure notifications: meta->notification should be a HASH\n];
     $error++;
+  }
+
+  if (!$error)
+  {
+    # if we're good, swap to new notifications
+    $notification = $new;
   }
 
   return ($error);
