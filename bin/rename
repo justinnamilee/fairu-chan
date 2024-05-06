@@ -1,0 +1,461 @@
+#!/usr/bin/perl
+
+  #######################
+  # see -h or POD below #
+  #######################
+
+
+use strict;
+
+use File::Basename qw(basename dirname);
+use File::Copy qw(copy move);
+use Getopt::Std;
+
+
+# constants
+sub OPTIONS()  { q[hvVcd:rRFf:m:M:o:wBE] }
+sub PATH_SEP() { q[/] } # change me if needed (shouldn't need to)
+sub FILT_SEP() { q[,] }
+sub OUT_SEP()  { q[, ] }
+sub OUT_LIST() { qw(old new state) }
+
+
+# sub defs
+sub pathify(_;@);
+sub scan(_);
+sub help();
+
+
+# global variables in order of OPTIONS + defaults
+my $name = basename($0);
+my $verbose = undef;
+my $debug = undef;
+my $copy = 0; # default is to move
+my $directory = '.';
+my $run = 0;
+my $recursive = 0;
+my @filter = qw(mkv mp4 avi m4v);
+my $filter = qr//; # where the final filter result goes
+my $match = undef;
+my %map = ();
+my $output = undef;
+my $wait = 0;
+my $internal = 0; # use rename instead of File::Copy::move()
+my $manual = 0; # start in automatic mode
+my $help = undef;
+
+
+# check for better help
+BEGIN:
+{
+  eval {
+    require Pod::Help;
+  };
+
+  if ($@)
+  {
+    warn qq[Consider installing Pod::Help for better help.\n]
+  }
+  else
+  {
+    $help = 1;
+  }
+}
+
+
+# option import
+GETOPT:
+{
+  my %input = ();
+
+  # import options
+  die qq[Invalid option, see help ($name -h)]
+    unless (getopts(OPTIONS, \%input));
+
+  # help?
+  help
+    if ($input{h} or %input < 1);
+
+  # verbose or debug?
+  $verbose = exists($input{v}) ? $input{v} : $verbose;
+
+  if (exists($input{V}))
+  {
+    # -V overrides -v
+    $verbose = $input{V};
+    $debug = $input{V};
+  }
+
+  # copy mode?
+  $copy = exists($input{c}) ? $input{c} : $copy;
+
+  # where, yo?
+  die qq[Bad directory: $!]
+    unless (-d ($directory = exists($input{d}) ? $input{d} : $directory));
+
+  # dryrun or not?
+  $run = exists($input{r}) ? $input{r} : $run;
+
+  # recursive or not
+  $recursive = exists($input{R}) ? $input{R} : $recursive;
+
+  # enable default filter
+  unless ($input{F})
+  {
+    @filter = ();
+  }
+
+  if (length($input{f}))
+  {
+    push(@filter, split(FILT_SEP, $input{f}));
+  }
+
+  if (@filter)
+  {
+    my $qr = q[\\.(?:] . join(q[|], @filter) . q[)$];
+    $filter = qr/$qr/i; # compile it
+  }
+
+  # matching regex
+  die q[Bad matching regex]
+    unless (length($input{m}) and ($match = qr/$input{m}/));
+
+  # generate new maps
+  my %input_map = ((exists($input{M}) and defined($input{M})) ? eval $input{M} : ());
+
+  die qq[Learn to write subroutines: $@]
+    if $@;
+
+  foreach my $k (keys(%input_map))
+  {
+    $map{$k} = $input_map{$k};
+  }
+
+  # output format
+  die q[Missing output format]
+    unless (length($output = $input{o}));
+
+  # wait?
+  $wait = exists($input{w}) ? $input{w} : $wait;
+
+  # use built-in rename?
+  $internal = exists($input{B}) ? $input{B} : $internal;
+
+  # no automatic path / ext
+  $manual = exists($input{E}) ? $input{E} : $manual;
+}
+
+
+# print extra-extra information if requested
+if ($debug)
+{
+  print STDERR qq[[DEBUG] Mode:      ]. ($copy ? q[Copy] : q[Move]) .qq[\n];
+  print STDERR qq[[DEBUG] Filter:    $filter\n];
+  print STDERR qq[[DEBUG] Directory: $directory\n];
+  print STDERR qq[[DEBUG] Regex:     $match\n];
+  print STDERR qq[[DEBUG] Recursive: ]. ($recursive ? q[True] : q[False]) .qq[\n];
+  print STDERR qq[[DEBUG] Format:    $output\n];
+  print STDERR qq[[DEBUG] Maps:      ]. int(keys(%map)) .qq[\n];
+  print STDERR qq[[DEBUG] Wait:      ]. ($wait ? q[True] : q[False]) .qq[\n];
+  print STDERR qq[[DEBUG] Dry Run:   ]. ($run ? q[False] : q[True]) .qq[\n];
+  print STDERR qq[[DEBUG] Internal:  ]. ($internal ? q[True] : q[False]) .qq[\n];
+  print STDERR qq[[DEBUG] Manual:    ]. ($manual ? q[True] : q[False]) .qq[\n\n];
+}
+
+
+# pre-filter for certain file extensions
+my @file = grep { $_ =~ $filter } scan($directory);
+my %file = ();
+
+
+# parse the extra information out automatically
+unless ($manual)
+{
+  for (my $i = 0; $i < @file; $i++)
+  {
+    my ($dir, $f, $ext) = (dirname($file[$i]), basename($file[$i]), q[]);
+
+    unless (length($dir))
+    {
+      $dir = q[.];
+    }
+
+    if ($f =~ s/^(.+)(\..+?)$/$1/)
+    {
+      $ext = $2;
+    }
+
+    $file{$f} = { dir => $dir, ext => $ext };
+    $file[$i] = $f;
+  }
+}
+
+
+# do it, yo, get to processin'
+foreach my $old (@file)
+{
+  my $new;
+
+  if ($old =~ $match)
+  {
+    # this maps the matched elements to modifiers (if present) then passes them to sprintf in sort order
+    $new = sprintf($output, map { exists($map{$_}) ? $map{$_}->($+{$_}) : $+{$_} } sort keys(%+));
+
+    # complete automatic mode
+    unless ($manual)
+    {
+      $new = pathify($file{$old}->{dir}, $new) . $file{$old}->{ext};
+      $old = pathify($file{$old}->{dir}, $old) . $file{$old}->{ext};
+    }
+
+    # do the deed, do it, sir
+    if ($run && !$copy && ($internal ? rename($old, $new) : move($old, $new)))
+    {
+      print qq[Move: $old -> $new\n] if $verbose;
+    }
+    elsif ($run && $copy && copy($old, $new))
+    {
+      print qq[Copy: $old -> $new\n] if $verbose;
+    }
+    elsif ($run) # catch error
+    {
+      warn qq[Warn: $!\n];
+    }
+    else # dry run mode
+    {
+      print qq[Plan: $old -> $new\n];
+    }
+  }
+  else # no match
+  {
+    print qq[Skip: $old\n] if $debug;
+  }
+}
+
+
+# wrap it up, buddy
+if ($wait)
+{
+  print STDERR qq[\nPress <ENTER> to quit...\n];
+  <STDIN>;
+}
+
+exit 0;
+
+
+
+##
+# subroutines
+
+
+# make paths
+sub pathify(_;@)
+{
+  join(PATH_SEP, @_)
+}
+
+
+# non/recursive file scanner
+sub scan(_)
+{
+  my ($path, @file) = @_;
+
+  if (-f $path)
+  {
+    push(@file, $path);
+  }
+  else
+  {
+    if (-d $path && opendir(my $d, $path))
+    {
+      if ($recursive)
+      {
+        push(@file, map { scan } map { pathify($path, $_) } grep { !/^\.\.?$/ } readdir($d));
+      }
+      else
+      {
+        push(@file, map { pathify($path, $_) } grep { !/^\.\.?$/ } readdir($d));
+      }
+    }
+    else
+    {
+      warn qq[Bad path: '$path': $!];
+    }
+  }
+
+  return (@file);
+}
+
+
+# really? you need a comment?
+sub help()
+{
+  if ($help)
+  {
+    Pod::Help->help();
+  }
+  else {
+    # TODO: this is horrible, please fix me
+    print STDERR qq[\nUsage:\n];
+    print STDERR qq[\t\$ $name -h -D -d <path> -r -R -F -f <filter> -m <regex> -M <map> -o <format> -w -E\n];
+    print STDERR qq[\n\nExamples:\n];
+    print STDERR qq[\t\$ $name -E -d ~/videos/bad_named_tv -m '^(?<a_path>.+?)\\s+-\\s+(?<b_sn>\\d)\.(?<c_en>\\d\\d)\\.(?<d_ext>.+)' -o '%s - S%02dE%02d.%s' -r -D\n\n];
+    print STDERR qq[\t\$ $name ].q[-d ~/music/bad_multi_cd -m '^(?<a_artist>.+?)\\s+\\[(?<b_album>.+?)\\]\\s+Disk\\s+(?<c_num>\\d\\.\\d+)' -o '%s (%s) %03d' -M 'c_num => sub { my ($d,$t) = split(q[.], shift); return (($d-1)*20 + $t) }' ].qq[-w\n\n];
+    print STDERR qq[\n\nFor more information see POD.\n];
+    exit 0;
+  }
+}
+
+
+
+__END__
+
+
+=pod
+
+=head1 NAME
+
+RENAME.PL - Pretty under-engineered if you ask me.
+
+=head1 DESCRIPTION
+
+Rename files and stuff with the power of B<REGEX> and B<Perl>.  It uses named capture groups in B<REGEX>, optionally passes them to a matching named subroutine, then it stuffs them into your provided format for C<sprintf()>.
+
+=head1 THE EASY STUFF
+
+=over
+
+=item HELP B<-h>
+
+Duh.
+
+=item VERBOSE B<-v>
+
+Print's event information as it happens.
+
+=item DEBUG B<-V>
+
+Does the same as above, but dumps extra info at the start.
+
+=item COPY B<-c>
+
+Do you want to copy the files instead of moving them (default)?
+
+=item DIRECTORY B<-d path>
+
+Defaults to '.', make sure you have your filter set!
+
+=item RUN B<-r>
+
+If this is not include the script does nothing to the actual files (default).
+
+=item RECURSIVE B<-R>
+
+Do I scan sub-directories as well?
+
+=item INCLUDE DEFAULT FILTERS B<-F>
+
+Includes the default path filters as seen in FILT_DEF (see inside the script).
+
+=item FILTERS B<-f filter>
+
+Only grab paths that match these pre-filters, compiled as C<qr/@{[ q[\\.(?:] . join(q[|], @filter) . q[)$] ]}/i>.
+
+Input should be a string of extensions separated by FILT_SEP (defaults to ','), like: 'mkv,mp4'.
+
+=item WAIT B<-w>
+
+Do not exit the script until enter is pressed.
+
+=item INTERNAL B<-B>
+
+Use internal C<rename()> instead of C<File::Copy::move()>.
+
+=item MANUAL B<-E>
+
+Disable automatic "path" and "extension" capture.  You will need to provide matches for your path that come first and extension that come last (or not, whatever).
+
+=back
+
+=head1 GORY DETAILS
+
+=head2 INPUT REGEX B<-m regex>
+
+Your B<REGEX> will be passed the complete file name from the input path (B<-d> or '.' by default).  It must return a successful match or the file in question will be skipped.
+
+To get data to the output formatter capture groups are used.  The capture groups MUST be named and will be sorted by alphabetical order before being passed to the output formatter.
+
+=head3 Example (with B<-E>):
+
+  INPUT: '~/videos/bad_named_tv/your_show_310_h264_1080p.mkv/'
+  REGEX: qr/^(?<a_path>.+?)your_show(?<b_season>\d)(?<c_episode>\d+).+$/
+
+=head3 Results:
+
+  {
+    a_path    => '~/videos/bad_named_tv/',
+    b_season  => 3,
+    c_episode => 10
+  }
+
+=head2 MAPPING SUBROUTINES B<-M map>
+
+After matching has been completed on an input path B<rename.pl> will look for subroutines to be called on each named capture group's result.  Input to -M should be a string containing a list of key-value pairs, like:
+
+  -M 'a_one => sub {uc(shift)}, b_two => sub {lc(shift)}'
+
+=head3 Example (with B<-E>):
+
+  INPUT: { a_path => '~/videos/bad_named_tv/' }
+  MAP:   { a_path => sub { my (@path) = split('/',shift); pop(@path); push(@path, 'sorted_tv'); return join('/',@path) } }
+
+=head3 Results:
+
+  {
+    a_path    => '~/videos/sorted_tv',
+    b_season  => 3,
+    c_episode => 10
+  }
+
+=head2 OUTPUT FORMAT B<-o format>
+
+Once all named capture groups have been mapped (if applicable), they are sorted alphabetically and stuffed into C<sprintf()>.
+
+=head3 Example (with B<-E>):
+
+  INPUT:  { a_path => '~/videos/sorted_tv', b_season => 3, c_episode => 10 }
+  FORMAT: '%s/Your Show S%02dE%02d.mkv'
+
+=head3 Results:
+
+  '~/videos/sorted_tv/Your Show S03E10.mkv'
+
+=head1 EXAMPLES
+
+  Convert TV named like "~/videos/bad_named_tv/SomeShow - 6.66.mp4" to "~/videos/bad_named_tv/SomeShow - S06E66.mp4"
+
+    $ rename.pl -E -d ~/videos/bad_named_tv -m '^(?<a_path>.+?)s+-s+(?<b_sn>\d).(?<c_en>\d\d).(?<d_ext>.+)' -o '%s - S%02dE%02d.%s' -r -D
+
+  Convert a 6-disc album (20 tracks per disc) named like "~/music/bad_multi_cd/Artist [Album 6CD Set] Disk 3.16.mp3" to "~/music/bad_multi_cd/Artist (Album) 056.mp3"
+
+    $ rename.pl -d ~/music/bad_multi_cd -m '^(?<a_artist>.+?)\s+\[(?<b_album>.+?)\]\s+Disk\s+(?<c_num>\d\.\d+)' -o '%s (%s) %03d' -M 'c_num => sub { my ($d,$t) = split(q[.], shift); return (($d-1)*20 + $t) }' -w
+
+  Take files out of subfolders and put them into the main directory by converting 'Season 1/Johnny Bravo 1x03b Some title.avi' to 'Johnny Bravo S01E03 (Part 02) Some title.avi', etc.
+
+    $ rename.pl -m '^.+? - (?<a_season>\d+)x(?<b_episode>\d+)(?<c_part>\w) - (?<d_extra>.+)' -o 'Johnny Bravo S%02dE%02d (Part %02d) %s' -M 'c_part => sub { return (defined($_[0]) ? (ord(shift) - 96) : 0) }' -R -E
+
+=head1 AUTHOR
+
+Justin Lee L<kool dot name at gmail dot com>
+
+=head1 HOMEWORK
+
+=over
+
+=item L<perlre>: https://perldoc.perl.org/perlre.html
+
+=item L<perlsub>: https://perldoc.perl.org/perlsub.html
+
+=back
+
+=cut
