@@ -211,11 +211,11 @@ foreach my $old (@file)
     # do the deed, do it, sir
     if ($run && !$copy && ($internal ? rename($old, $new) : move($old, $new)))
     {
-      print qq[Move: $old -> $new\n] if $verbose;
+      print qq[Move: '$old' -> '$new'\n] if $verbose;
     }
     elsif ($run && $copy && copy($old, $new))
     {
-      print qq[Copy: $old -> $new\n] if $verbose;
+      print qq[Copy: '$old' -> '$new'\n] if $verbose;
     }
     elsif ($run) # catch error
     {
@@ -223,12 +223,12 @@ foreach my $old (@file)
     }
     else # dry run mode
     {
-      print qq[Plan: $old -> $new\n];
+      print qq[Plan: '$old' -> '$new'\n];
     }
   }
   else # no match
   {
-    print qq[Skip: $old\n] if $debug;
+    print qq[Skip: '$old'\n] if $debug;
   }
 }
 
@@ -279,7 +279,7 @@ sub scan(_)
     }
     else
     {
-      warn qq[Bad path: '$path': $!];
+      warn qq[Warn: '$path': $!];
     }
   }
 
@@ -387,7 +387,7 @@ To get data to the output formatter capture groups are used.  The capture groups
 
 =head3 Example (with B<-E>):
 
-  INPUT: '~/videos/bad_named_tv/your_show_310_h264_1080p.mkv/'
+  INPUT: '~/videos/bad_named_tv/your_show_310_h264_1080p.mkv'
   REGEX: qr/^(?<a_path>.+?)your_show(?<b_season>\d)(?<c_episode>\d+).+$/
 
 =head3 Results:
