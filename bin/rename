@@ -292,7 +292,8 @@ sub help()
 {
   if ($help)
   {
-    Pod::Help->help();
+    # send text mode (-t), no pager (-T), and file (-F $0)
+    Pod::Help->help(qw[-t -T -F], $0);
   }
   else {
     # TODO: this is horrible, please fix me
