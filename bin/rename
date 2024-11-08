@@ -42,7 +42,6 @@ my $output = undef;
 my $wait = 0;
 my $internal = 0; # use rename instead of File::Copy::move()
 my $manual = 0; # start in automatic mode
-my $help = undef;
 
 
 # check for better help
@@ -55,10 +54,6 @@ BEGIN:
   if ($@)
   {
     warn qq[Consider installing Pod::Help for better help.\n]
-  }
-  else
-  {
-    $help = 1;
   }
 }
 
@@ -290,21 +285,41 @@ sub scan(_)
 # really? you need a comment?
 sub help()
 {
-  if ($help)
-  {
+  eval {
     # send text mode (-t), no pager (-T), and file (-F $0)
     Pod::Help->help(qw[-t -T -F], $0);
+  };
+
+  if ($@)
+  {
+    warn qq[Consider installing Pod::Help for better help.\n];
+
+    warn qq[\nUsage:\n];
+
+    warn qq[\t\$ $name -h -v -V -c -d <path> -r -R -F -f <filter> -m <regex> -M <map> -o <format> -w -B -E\n];
+    warn qq[\n\t\t-h -> Display help message.\n];
+    warn qq[\n\t\t-v -> Enable verbose output.\n];
+    warn qq[\n\t\t-V -> Enable verbose AND debug output.\n];
+    warn qq[\n\t\t-c -> Enable copy mode (instead of move).\n];
+    warn qq[\n\t\t-d -> Scan for files in <path> directory.\n];
+    warn qq[\n\t\t-r -> Enable "run" mode, otherwise this script just says what it would do without doing it.\n];
+    warn qq[\n\t\t-R -> Enable folder recursion on file scan.\n];
+    warn qq[\n\t\t-F -> Include the default filters, see POD for details.\n];
+    warn qq[\n\t\t-f -> Set filters manually from <filter> string, comma-separated suffixes (e.g. "mkv,mp4").\n];
+    warn qq[\n\t\t-m -> Regex match string, should use named capture groups, see POD for details.\n];
+    warn qq[\n\t\t-M -> Mapping functions for named capture groups before going to output, see POD for details.\n];
+    warn qq[\n\t\t-o -> Output string in Perl sprintf format, sorted capture groups as input, see POD for details.\n];
+    warn qq[\n\t\t-w -> Do not exit script after completion, what for <ENTER> key before hand.\n];
+    warn qq[\n\t\t-B -> Use internal (Perl) rename function instead of File::Copy::move(), does nothing for copy mode.\n];
+    warn qq[\n\t\t-E -> Extended matching mode, don't do any "smart" things to the path before matching against regex, see POD for details.\n];
+
+    warn qq[\nExample:\n];
+    warn qq[\n\t\$ rename -d ~/Pictures/Move_Nums_to_Front -m '^(?<b_front>.+?) - (?<a_num>\d+) - (?<c_rear>.+?)$' -o '%03d. %s - %s' -r\n];
+
+    warn qq[\n\nFor more information see POD.\n];
   }
-  else {
-    # TODO: this is horrible, please fix me
-    print STDERR qq[\nUsage:\n];
-    print STDERR qq[\t\$ $name -h -D -d <path> -r -R -F -f <filter> -m <regex> -M <map> -o <format> -w -E\n];
-    print STDERR qq[\n\nExamples:\n];
-    print STDERR qq[\t\$ $name -E -d ~/videos/bad_named_tv -m '^(?<a_path>.+?)\\s+-\\s+(?<b_sn>\\d)\.(?<c_en>\\d\\d)\\.(?<d_ext>.+)' -o '%s - S%02dE%02d.%s' -r -D\n\n];
-    print STDERR qq[\t\$ $name ].q[-d ~/music/bad_multi_cd -m '^(?<a_artist>.+?)\\s+\\[(?<b_album>.+?)\\]\\s+Disk\\s+(?<c_num>\\d\\.\\d+)' -o '%s (%s) %03d' -M 'c_num => sub { my ($d,$t) = split(q[.], shift); return (($d-1)*20 + $t) }' ].qq[-w\n\n];
-    print STDERR qq[\n\nFor more information see POD.\n];
-    exit 0;
-  }
+
+  exit 1;
 }
 
 
