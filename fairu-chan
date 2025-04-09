@@ -28,7 +28,7 @@ my $watch  = undef;
 our $| = 1;
 
 # signal handlers
-$SIG{TERM} = sub { $run = 0 };
+$SIG{TERM} = sub { $run = 0; fairu::chan::stop() };
 $SIG{USR1} = sub { $idle = 0 };
 $SIG{USR2} = sub { $reload = 1 };
 

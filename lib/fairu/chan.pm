@@ -14,6 +14,13 @@ use File::Copy;
 use File::Path;
 
 
+my $run = 1;
+
+sub stop()
+{
+  $run = 0;
+}
+
 sub recursive($)
 {
   (meta->{recurse} || data->{$_[0]}->{inFile}->{recurse}) ? 1 : 0
@@ -123,6 +130,8 @@ sub uwu($)
 
   foreach my $ifile (keys(%{$map}))
   {
+    last unless $run; # if exit signal caught we need to stop
+
     my ($mode, $ofile) = ($map->{$ifile}->{mode}, $map->{$ifile}->{file});
 
     if (length($ofile) && ! -e $ofile)
