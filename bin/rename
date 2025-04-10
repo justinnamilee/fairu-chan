@@ -60,17 +60,17 @@ GETOPT:
   my ($V, $f, $M) = ();
 
   my %input = (
-    'h|help'         => \$help,
-    'v|verbose'      => \$verbose,
-    'c|copy'         => \$copy,
-    'd|directory=s'  => \$directory,
-    'r|run'          => \$run,
-    'R|recursive'    => \$recursive,
-    'f|filter=s'     => \$f,
-    's|subroutine=s' => \$M,
-    'w|wait'         => \$wait,
-    'B|internal'     => \$internal,
-    'm|manual'       => \$manual,
+    'help|h'         => \$help,
+    'verbose|v'      => \$verbose,
+    'copy|c'         => \$copy,
+    'directory|d=s'  => \$directory,
+    'execute|e'      => \$run,
+    'recursive|r'    => \$recursive,
+    'filter|f=s'     => \$f,
+    'subroutine|s=s' => \$M,
+    'wait|w'         => \$wait,
+    'internal|i'     => \$internal,
+    'manual|m'       => \$manual,
   );
 
   # import options
@@ -267,25 +267,24 @@ sub help()
   {
     warn qq[Consider installing Pod::Help for better help.\n];
     warn qq[\nUsage:\n];
-    warn qq[\t\$ $name [-hvDcrRFwBE -d <path> -f <filter> -s <subs>] <1:regex> <2:format> \n];
+    warn qq[\t\$ $name [-hvcerwim -d <path> -f <filter> -s <subs>] <1:regex> <2:format> \n];
     warn qq[\n\t\tRequired:\n];
     warn qq[\n\t\t <1:regex>  -> Regex match string, should use named capture groups, see POD for details.\n];
     warn qq[\n\t\t <2:format> -> Output string in Perl sprintf format, sorted capture groups as input, see POD for details.\n];
     warn qq[\n\t\tOptional:\n];
     warn qq[\n\t\t-h -> Display help message.\n];
     warn qq[\n\t\t-v -> Enable verbose output.\n];
-    warn qq[\n\t\t-V -> Enable verbose AND debug output.\n];
     warn qq[\n\t\t-c -> Enable copy mode (instead of move).\n];
-    warn qq[\n\t\t-r -> Enable "run" mode, otherwise this script just says what it would do without doing it.\n];
-    warn qq[\n\t\t-R -> Enable folder recursion on file scan.\n];
+    warn qq[\n\t\t-e -> Enable "execute" mode, otherwise this script just says what it would do without doing it.\n];
+    warn qq[\n\t\t-r -> Enable folder recursion on file scan.\n];
     warn qq[\n\t\t-w -> Do not exit script after completion, what for <ENTER> key before hand.\n];
-    warn qq[\n\t\t-B -> Use internal (Perl) rename function instead of File::Copy::move(), does nothing for copy mode.\n];
+    warn qq[\n\t\t-i -> Use internal (Perl) rename function instead of File::Copy::move(), does nothing for copy mode.\n];
     warn qq[\n\t\t-m -> Extended matching mode, don't do any "smart" things to the path before matching against regex, see POD for details.\n];
     warn qq[\n\t\t-d -> Scan for files in <path> directory.\n];
     warn qq[\n\t\t-f -> Set filters manually from <filter> string, comma-separated suffixes (e.g. "mkv,mp4").\n];
     warn qq[\n\t\t-s -> Mapping subroutines for named capture groups before going to output, see POD for details.\n];
     warn qq[\nExample:\n];
-    warn qq[\n\t\$ rename -d ~/Pictures/Move_Nums_to_Front '^(?<b_front>.+?) - (?<a_num>\d+) - (?<c_rear>.+?)$' '%03d. %s - %s' -r\n];
+    warn qq[\n\t\$ rename -d ~/Pictures/Move_Nums_to_Front '^(?<b_front>.+?) - (?<a_num>\d+) - (?<c_rear>.+?)$' '%03d. %s - %s' -e\n];
     warn qq[\n\nFor more information see POD.\n];
   }
 
@@ -305,7 +304,7 @@ RENAME.PL - Pretty under-engineered if you ask me.
 
 =head1 USAGE
 
-RENAME.PL [-hvDcrRFwBE -d <path> -f <filter> -M <map>] <1:regex> <2:format>
+RENAME.PL [-hvcerwim -d <path> -f <filter> -s <map>] <1:regex> <2:format>
 
 =head1 DESCRIPTION
 
@@ -331,11 +330,11 @@ Do you want to copy the files instead of moving them (default)?
 
 Defaults to '.', make sure you have your filter set!
 
-=item RUN B<-r|--run>
+=item RUN B<-e|--execute>
 
 If this is not include the script does nothing to the actual files (default).
 
-=item RECURSIVE B<-R|--recursive>
+=item RECURSIVE B<-r|--recursive>
 
 Do I scan sub-directories as well?
 
@@ -349,9 +348,9 @@ Input should be a string of extensions separated by FILT_SEP (defaults to ','), 
 
 Do not exit the script until enter is pressed.
 
-=item INTERNAL B<-B|--internal>
+=item INTERNAL B<-i|--internal>
 
-Use internal C<rename()> instead of C<File::Copy::move()>.  This option is B<-B> for bad idea.
+Use internal C<rename()> instead of C<File::Copy::move()>.  This option is probably not what you want ever.
 
 =item MANUAL B<-m|--manual>
 
