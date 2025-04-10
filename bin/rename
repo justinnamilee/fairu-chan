@@ -68,7 +68,7 @@ GETOPT:
     q[execute|e]      => \$run,
     q[recursive|r]    => \$recursive,
     q[filter|f=s]     => \$filter_in,
-    q[subroutine|s=s] => \$$subs_in,
+    q[subroutine|s=s] => \$subs_in,
     q[wait|w]         => \$wait,
     q[internal|i]     => \$internal,
     q[manual|m]       => \$manual,
