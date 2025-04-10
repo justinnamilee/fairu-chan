@@ -388,9 +388,9 @@ Once all named capture groups have been mapped (if applicable), they are sorted 
 
 =head2 MAPPING SUBROUTINES B<-s|--subroutine hash>
 
-After matching has been completed on an input path B<rename.pl> will look for subroutines to be called on each named capture group's result.  Input to -M should be a string containing a list of key-value pairs, like:
+After matching has been completed on an input path B<rename.pl> will look for subroutines to be called on each named capture group's result.  Input to B<-s> should be a string containing a list of key-value pairs, like:
 
-  -M 'a_one => sub {uc(shift)}, b_two => sub {lc(shift)}'
+  -s 'a_one => sub {uc(shift)}, b_two => sub {lc(shift)}'
 
 =head3 Example (with B<-m>):
 
@@ -418,15 +418,15 @@ After matching has been completed on an input path B<rename.pl> will look for su
 
   Convert TV named like "~/videos/bad_named_tv/SomeShow - 6.66.mp4" to "~/videos/bad_named_tv/SomeShow - S06E66.mp4"
 
-    $ rename.pl -m -d ~/videos/bad_named_tv '^(?<a_path>.+?)s+-s+(?<b_sn>\d).(?<c_en>\d\d).(?<d_ext>.+)' '%s - S%02dE%02d.%s' -r -D
+    $ rename.pl -m -d ~/videos/bad_named_tv '^(?<a_path>.+?)s+-s+(?<b_sn>\d).(?<c_en>\d\d).(?<d_ext>.+)' '%s - S%02dE%02d.%s' -e
 
-  Convert a 6-disc album (20 tracks per disc) named like "~/music/bad_multi_cd/Artist [Album 6CD Set] Disk 3.16.mp3" to "~/music/bad_multi_cd/Artist (Album) 056.mp3"
+  Convert by copying a 6-disc album (20 tracks per disc) named like "~/music/bad_multi_cd/Artist [Album 6CD Set] Disk 3.16.mp3" to "~/music/bad_multi_cd/Artist (Album) 056.mp3"
 
-    $ rename.pl -d ~/music/bad_multi_cd '^(?<a_artist>.+?)\s+\[(?<b_album>.+?)\]\s+Disk\s+(?<c_num>\d\.\d+)' '%s (%s) %03d' -M 'c_num => sub { my ($d,$t) = split(q[.], shift); return (($d-1)*20 + $t) }' 
+    $ rename.pl -cd ~/music/bad_multi_cd '^(?<a_artist>.+?)\s+\[(?<b_album>.+?)\]\s+Disk\s+(?<c_num>\d\.\d+)' '%s (%s) %03d' -s 'c_num => sub { my ($d,$t) = split(q[.], shift); return (($d-1)*20 + $t) }' 
 
   Take files out of subfolders and put them into the main directory by converting 'Season 1/Johnny Bravo 1x03b Some title.avi' to 'Johnny Bravo S01E03 (Part 02) Some title.avi', etc.
 
-    $ rename.pl '^.+? - (?<a_season>\d+)x(?<b_episode>\d+)(?<c_part>\w) - (?<d_extra>.+)' 'Johnny Bravo S%02dE%02d (Part %02d) %s' -M 'c_part => sub { return (defined($_[0]) ? (ord(shift) - 96) : 0) }' -R -m
+    $ rename.pl '^.+? - (?<a_season>\d+)x(?<b_episode>\d+)(?<c_part>\w) - (?<d_extra>.+)' 'Johnny Bravo S%02dE%02d (Part %02d) %s' -s 'c_part => sub { return (defined($_[0]) ? (ord(shift) - 96) : 0) }' -rm
 
 =head1 AUTHOR
 
