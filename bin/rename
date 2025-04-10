@@ -60,17 +60,17 @@ GETOPT:
   my ($V, $f, $M) = ();
 
   my %input = (
-    'h|help'        => \$help,
-    'v|verbose'     => \$verbose,
-    'c|copy'        => \$copy,
-    'd|directory=s' => \$directory,
-    'r|run'         => \$run,
-    'R|recursive'   => \$recursive,
-    'f|filter=s'    => \$f,
-    'M|map=s'       => \$M,
-    'w|wait'        => \$wait,
-    'B|internal'    => \$internal,
-    'm|manual'      => \$manual,
+    'h|help'         => \$help,
+    'v|verbose'      => \$verbose,
+    'c|copy'         => \$copy,
+    'd|directory=s'  => \$directory,
+    'r|run'          => \$run,
+    'R|recursive'    => \$recursive,
+    'f|filter=s'     => \$f,
+    's|subroutine=s' => \$M,
+    'w|wait'         => \$wait,
+    'B|internal'     => \$internal,
+    'm|manual'       => \$manual,
   );
 
   # import options
@@ -267,7 +267,7 @@ sub help()
   {
     warn qq[Consider installing Pod::Help for better help.\n];
     warn qq[\nUsage:\n];
-    warn qq[\t\$ $name [-hvDcrRFwBE -d <path> -f <filter> -M <map>] <1:regex> <2:format> \n];
+    warn qq[\t\$ $name [-hvDcrRFwBE -d <path> -f <filter> -s <subs>] <1:regex> <2:format> \n];
     warn qq[\n\t\tRequired:\n];
     warn qq[\n\t\t <1:regex>  -> Regex match string, should use named capture groups, see POD for details.\n];
     warn qq[\n\t\t <2:format> -> Output string in Perl sprintf format, sorted capture groups as input, see POD for details.\n];
@@ -283,7 +283,7 @@ sub help()
     warn qq[\n\t\t-m -> Extended matching mode, don't do any "smart" things to the path before matching against regex, see POD for details.\n];
     warn qq[\n\t\t-d -> Scan for files in <path> directory.\n];
     warn qq[\n\t\t-f -> Set filters manually from <filter> string, comma-separated suffixes (e.g. "mkv,mp4").\n];
-    warn qq[\n\t\t-M -> Mapping functions for named capture groups before going to output, see POD for details.\n];
+    warn qq[\n\t\t-s -> Mapping subroutines for named capture groups before going to output, see POD for details.\n];
     warn qq[\nExample:\n];
     warn qq[\n\t\$ rename -d ~/Pictures/Move_Nums_to_Front '^(?<b_front>.+?) - (?<a_num>\d+) - (?<c_rear>.+?)$' '%03d. %s - %s' -r\n];
     warn qq[\n\nFor more information see POD.\n];
@@ -384,7 +384,7 @@ To get data to the output formatter capture groups are used.  The capture groups
 
 Once all named capture groups have been mapped (if applicable), they are sorted alphabetically and stuffed into C<sprintf()>.
 
-=head2 MAPPING SUBROUTINES B<-M|--map hash>
+=head2 MAPPING SUBROUTINES B<-s|--subroutine hash>
 
 After matching has been completed on an input path B<rename.pl> will look for subroutines to be called on each named capture group's result.  Input to -M should be a string containing a list of key-value pairs, like:
 
