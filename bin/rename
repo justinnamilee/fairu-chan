@@ -61,7 +61,7 @@ GETOPT:
 
   my %input = (
     'h|help'        => \$help,
-    'v|verbose:i'   => \$verbose,
+    'v|verbose'     => \$verbose,
     'c|copy'        => \$copy,
     'd|directory=s' => \$directory,
     'r|run'         => \$run,
