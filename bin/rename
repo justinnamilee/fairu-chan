@@ -33,7 +33,6 @@ my $copy = 0; # default is to move
 my $directory = '.';
 my $run = 0;
 my $recursive = 0;
-my @filter = qw();
 my $filter = qr//; # where the final filter result goes
 my $match = undef;
 my %map = ();
@@ -57,20 +56,22 @@ BEGIN:
 # option import
 GETOPT:
 {
-  my ($V, $f, $M) = ();
+  Getopt::Long::Configure (q[bundling], q[ignorecase_always]);
+
+  my ($filter_in, $subs_in) = ();
 
   my %input = (
-    'help|h'         => \$help,
-    'verbose|v'      => \$verbose,
-    'copy|c'         => \$copy,
-    'directory|d=s'  => \$directory,
-    'execute|e'      => \$run,
-    'recursive|r'    => \$recursive,
-    'filter|f=s'     => \$f,
-    'subroutine|s=s' => \$M,
-    'wait|w'         => \$wait,
-    'internal|i'     => \$internal,
-    'manual|m'       => \$manual,
+    q[help|h]         => \$help,
+    q[verbose|v]      => \$verbose,
+    q[copy|c]         => \$copy,
+    q[directory|d=s]  => \$directory,
+    q[execute|e]      => \$run,
+    q[recursive|r]    => \$recursive,
+    q[filter|f=s]     => \$filter_in,
+    q[subroutine|s=s] => \$$subs_in,
+    q[wait|w]         => \$wait,
+    q[internal|i]     => \$internal,
+    q[manual|m]       => \$manual,
   );
 
   # import options
@@ -83,9 +84,11 @@ GETOPT:
   die qq[Bad directory: $!] unless (-d $directory);
 
   # enable extension filtering
-  if (length($f))
+  my @filter = ();
+
+  if (length($filter_in))
   {
-    push(@filter, split(FILT_SEP, $f));
+    push(@filter, split(FILT_SEP, $filter_in));
   }
 
   if (@filter)
@@ -96,7 +99,7 @@ GETOPT:
   }
 
   # generate new maps
-  %map = (defined($M) ? eval $M : ());
+  %map = (defined($subs_in) ? eval $subs_in : ());
 
   die qq[Learn to write subroutines: $@] if $@;
 
