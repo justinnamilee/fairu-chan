@@ -36,20 +36,20 @@ Here’s a draft **“Flow”** section you can drop into your README. It uses b
 
 ```mermaid
 
-flowchart TD
-  A[Start: fairu-chan <config.yml> daemon] --> B[Parse CLI args & load YAML config]
+graph TD
+  A[Start: fairu-chan &lt;config.yml&gt; daemon] --> B[Parse CLI args & load YAML config]
   B --> C[Initial scan (uwu)]
   C --> D{Daemon mode?}
-  D -- Yes --> E[Enter sleep loop]
-  D -- No --> F[Exit]
+  D --|Yes|--> E[Enter sleep loop]
+  D --|No|--> F[Exit]
   E --> G[Sleep for waitTime seconds]
   G --> H{Config changed?}
-  H -- Yes --> I[Reload config]
-  H -- No --> J[Nothing]
+  H --|Yes|--> I[Reload config]
+  H --|No|--> J[Nothing]
   I --> K{idleTime elapsed?}
   J --> K
-  K -- Yes --> L[Scan (uwu)]
-  K -- No --> G
+  K --|Yes|--> L[Scan (uwu)]
+  K --|No|--> G
   L --> E
 
 ```
