@@ -149,20 +149,20 @@ meta:
   notification:
     discord:
       type: discord
-      webhookUrl: "https://discord.com/api/webhooks/…"
-      template: "fairu-chan just added `%s`! *chef’s kiss*"
+      webhookUrl: 'https://discord.com/api/webhooks/…'
+      template: 'fairu-chan just added `%s`! *chef’s kiss*'
       for: event
 
 data:
   Pictures:
     fileMode: move
     inFile:
-      basePath: "/mnt/ingest/photos"
+      basePath: '/mnt/ingest/photos'
       recurse: true
-      inRegex: "IMG_(?<date>\\d{4}-\\d{2}-\\d{2})_(?<num>\\d+)\\.jpg"
+      inRegex: 'IMG_(?<date>\\d{4}-\\d{2}-\\d{2})_(?<num>\\d+)\\.jpg'
     outFile:
-      basePath: "/mnt/media/Photos"
-      outSprintf: "%{date}/photo_%05d.jpg"
+      basePath: '/mnt/media/Photos'
+      outSprintf: '%{date}/photo_%05d.jpg'
 ```
 
 ### *Full sample config with commentary: See [`sample-conf.yml`](sample-conf.yml) for the guided tour.*
@@ -198,3 +198,24 @@ systemctl start fairu-chan
 ## 📜 License
 
 Licensed under **GPL-3.0**. See [LICENSE](LICENSE) for the fine print (it’s not *that* scary, promise).
+
+---
+
+## (Secret Bonus, Ssssshhhhhh)
+
+```yaml
+
+data:
+  anime:
+    fileMode: copy
+    mapFunction:
+      b: 'my ($b) = @_; if ($b =~ / S(\d+) - (\d+)/) { my $e = sprintf(q[ - S%02dE%02d], $1, $2); $b =~ s/ S\d+ - \d+/$e/ } return ($b)'
+    inFile:
+      recurse: true
+      basePath: /home/justin/Downloads
+      inRegex: '(?<b>\[(?:[^\]].+?])\] (?<a>.+?)(?:\.+)?(?: S\d+)? - \d+(?i: ?v\d+)?(?i: END)?(?: (?:\(|\[).+?)?\.mkv)$'
+    outFile:
+      basePath: '/mnt/netmount/multimedia/Television'
+      # A has the directory, B is the file name
+      outSprintf: '%s/%s'
+```
