@@ -152,7 +152,7 @@ sub uwu($)
       {
         if (($mode eq q[move] && move($ifile, $ofile)) || ($mode eq q[copy] && copy($ifile, $ofile)))
         {
-          fairu::notification::send(q[event], $f);
+          fairu::notification::send(q[event], $ofile);
           $count++
         }
         else

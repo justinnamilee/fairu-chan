@@ -25,6 +25,8 @@ sub new($)
     {
       require Data::Validate::URI;
       require WebService::Discord::Webhook;
+      require File::Basename;
+
       $loaded = __PACKAGE__;
     }
 
@@ -66,7 +68,7 @@ sub handler(@)
 {
   my ($self, @data) = @_;
 
-  $self->{hook}->execute(sprintf($self->{template}, @data));
+  $self->{hook}->execute(sprintf($self->{template}, map { File::Basename::basename($_) } @data));
 }
 
 
