@@ -103,7 +103,7 @@ graph TD
 
 * Likely Built-In Modules (probably don't need to install them)
 
-  * `File::Copy`, `File::Path`, `File::Spec` (basic file sorcery)
+  * `File::Copy`, `File::Path`, `File::Spec`, `File::Basename` (basic file sorcery)
 
 ---
 
