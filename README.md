@@ -28,16 +28,14 @@
 
 ---
 
-Here’s a draft **“Flow”** section you can drop into your README. It uses both a Mermaid diagram for a visual overview and a bullet-list for more details. I’ve cited the relevant parts of the code so you can see exactly where each step comes from.
-
----
-
 ## 🔄 Flow
+
+### One Heck of a Diagram
 
 ```mermaid
 
 graph TD
-  A[START fairu-chan config.yml daemon] --> B[PARSE args & load YAML]
+  A[START fairu-chan] --> B[PARSE args & load YAML]
   B --> C[Initial SCAN, see SCAN below]
   C --> D{RUN in daemon mode?}
   D --|Yes|--> E[SLEEP and wait loop]
@@ -59,6 +57,8 @@ graph TD
 
 
 ```
+
+### In Words Instead of a Diagram
 
 1. **Initialization**
    On startup, `fairu-chan` parses the command-line arguments and loads the YAML config (exiting on parse/validation failure).
