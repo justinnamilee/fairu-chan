@@ -43,9 +43,8 @@ graph TD
   E --> G[SLEEP for waitTime seconds]
   G --> H{CHECK config changed?}
   H --|Yes|--> I[RELOAD config]
-  H --|No|--> J[RELOAD nothing]
+  H --|No|--> K
   I --> K{CHECK idleTime elapsed?}
-  J --> K
   K --|No|--> G
   K --|Yes|--> L[SCAN every unique inFile.basePath once]
   L --> M[MATCH files against inFile.inRegex to get named capture groups]
