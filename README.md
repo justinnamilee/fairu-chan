@@ -49,7 +49,7 @@ graph TD
   K --|Yes|--> L[SCAN every unique inFile.basePath once]
   L --> M[MATCH files against inFile.inRegex to get named capture groups]
   M --> N[SORT capture group names lexically]
-  N --> O[MAP values use optional mapFunction from group or fallback to global]
+  N --> O[MAP values using optional mapFunction from group or fallback to global]
   O --> P[BUILD paths with outFile.basePath and outFile.outSprintf]
   P --> Q[ACTION by copy or move per fileMode from group or fallback to global]
   Q --> E
