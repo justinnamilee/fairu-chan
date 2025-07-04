@@ -79,6 +79,9 @@ graph TD
    If running (`run` action), the script creates any missing directories and then either `move`s or `copy`s each file according to `fileMode`.
 8. **Notifications**
    After processing each file it sends an “event” notification (e.g. Discord); when the run finishes it sends a “debug” summary.
+
+   * Discord can accept event, information, and debug types; they are output to a webhook for a channel through a template.
+   * Plex only accepts event; it strips off the file at the end, and tells the Plex API to do a partial scan on the folder.
 9. **Signals & shutdown**
    While daemonized it listens for:
 
