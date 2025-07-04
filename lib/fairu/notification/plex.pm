@@ -36,6 +36,7 @@ sub new($)
       $notification->{url}   = $base;
       $notification->{token} = $config->{webhookToken};
       $notification->{lib}   = $config->{libraries};
+      $notification->{http}  = HTTP::Tiny->new(agent => q[PlexScan/1.0]);
     }
     else
     {
@@ -73,14 +74,13 @@ sub handler(@)
     if (defined($section) && $section > 0)
     {
       my $enc = URI::Escape::uri_escape_utf8($dir);
-      my $http = HTTP::Tiny->new(agent => q[PlexScan/1.0]);
 
       my $url = sprintf(DEF_URL, $self->{url}, $section, $enc, $self->{token});
-      my $res = $http->get($url);
+      my $res = $self->{http}->get($url);
 
       unless ($res->{success})
       {
-        warn qq[Couldn't scan '$dir': $res->{status} => $res->{reason}\n];
+        warn qq[Couldn't scan '$dir': $url => $res->{status}($res->{reason})\n];
       }
     }
   }
