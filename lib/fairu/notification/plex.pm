@@ -17,7 +17,7 @@ sub new($)
 {
   my ($error, $notification, $self, $config) = (0, {}, @_);
 
-  if (ref($config) eq q[HASH] && length($config->{webhookUrl}) && ref($config->{libraries}) eq q[HASH] && length($config->{token}))
+  if (ref($config) eq q[HASH] && length($config->{webhookUrl}) && ref($config->{libraries}) eq q[HASH] && length($config->{webhookToken}))
   {
     unless (defined($loaded))
     {
