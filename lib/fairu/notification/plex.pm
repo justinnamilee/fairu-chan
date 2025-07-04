@@ -55,31 +55,38 @@ sub new($)
 
 sub handler(@)
 {
-  my ($self, $path) = @_;
+  my ($self, $mode, $path) = @_;
 
-  (my $dir = (File::Basename::fileparse($path))[1]) =~ s|/+$||;
-  my $section = undef;
-
-  foreach my $k (keys(%{$self->{lib}}))
+  if ($mode eq q[event])
   {
-    if (index($dir, $k) == 0)
+    (my $dir = (File::Basename::fileparse($path))[1]) =~ s|/+$||;
+    my $section = undef;
+
+    foreach my $k (keys(%{$self->{lib}}))
     {
-      $section = $self->{lib}->{$k};
-      last;
+      if (index($dir, $k) == 0)
+      {
+        $section = $self->{lib}->{$k};
+        last;
+      }
+    }
+
+    if (defined($section) && $section > 0)
+    {
+      my $enc = URI::Escape::uri_escape_utf8($dir);
+
+      my $url = sprintf(DEF_URL, $self->{baseUrl}, $section, $enc, $self->{token});
+      my $res = $self->{http}->get($url);
+
+      unless ($res->{success})
+      {
+        warn qq[Couldn't scan '$dir': $res->{status} => $res->{reason}\n];
+      }
     }
   }
-
-  if (defined($section) && $section > 0)
+  else
   {
-    my $enc = URI::Escape::uri_escape_utf8($dir);
-
-    my $url = sprintf(DEF_URL, $self->{baseUrl}, $section, $enc, $self->{token});
-    my $res = $self->{http}->get($url);
-
-    unless ($res->{success})
-    {
-      warn qq[Couldn't scan '$dir': $res->{status} => $res->{reason}\n];
-    }
+    warn qq[Unsupported mode '$mode' for Plex Scanner Notification\n];
   }
 }
 

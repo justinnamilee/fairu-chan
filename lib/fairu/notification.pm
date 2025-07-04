@@ -40,6 +40,21 @@ sub init($)
           $error++;
         }
       }
+      elsif (lc($config->{$k}->{type}) eq q[plex])
+      {
+        if (ref(my $n = fairu::notification::plex->new($config->{$k})))
+        {
+          foreach my $t (TYPE)
+          {
+            push(@{$new->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
+          }
+        }
+        else
+        {
+          warn qq[Couldn't configure notification($k)];
+          $error++;
+        }
+      }
       # TODO: elsif (other notification types)
     }
   }
