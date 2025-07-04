@@ -5,7 +5,7 @@ package fairu::config;
 use strict;
 use lib q[lib];
 
-use YAML;
+use YAML::PP;
 use fairu::notification;
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
@@ -32,12 +32,6 @@ sub data() { ref($config) ? $config->{data} : {} }
 
 ###
 # parse & validation
-
-sub yaml2bool(_)
-{
-  # no need for fc() if you stick to ascii
-  return (lc($_[0]) eq q[true] || $_[0] == 1);
-}
 
 sub validateGrouping($$)
 {
@@ -90,11 +84,6 @@ sub validateGrouping($$)
     $error++;
   }
 
-  if (defined($group->{inFile}->{recurse}))
-  {
-    $group->{inFile}->{recurse} = yaml2bool($group->{inFile}->{recurse});
-  }
-
   if (defined($group->{mapFunction}))
   {
     if (ref($group->{mapFunction}) eq q[HASH])
@@ -126,16 +115,6 @@ sub validateMeta($)
   my ($error, $meta) = (0, @_);
 
   #* optional... options for meta
-  if (defined($meta->{autoreload}))
-  {
-    $meta->{autoreload} = yaml2bool($meta->{autoreload});
-  }
-
-  if (defined($meta->{recurse}))
-  {
-    $meta->{recurse} = yaml2bool($meta->{recurse});
-  }
-
   if (defined($meta->{notification}))
   {
     if (ref($meta->{notification}) eq q[HASH])
@@ -219,7 +198,7 @@ sub parse($)
 
   if (-f $file && -r $file)
   {
-    eval { $newConfig = YAML::LoadFile($file) };
+    eval { $newConfig = YAML::PP::LoadFile($file) };
 
     if ($@)
     {
