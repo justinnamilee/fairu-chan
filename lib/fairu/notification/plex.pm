@@ -75,7 +75,7 @@ sub handler(@)
       my $enc = URI::Escape::uri_escape_utf8($dir);
       my $http = HTTP::Tiny->new(agent => q[PlexScan/1.0]);
 
-      my $url = sprintf(DEF_URL, $self->{baseUrl}, $section, $enc, $self->{token});
+      my $url = sprintf(DEF_URL, $self->{url}, $section, $enc, $self->{token});
       my $res = $http->get($url);
 
       unless ($res->{success})
