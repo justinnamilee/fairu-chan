@@ -32,7 +32,7 @@ meta:
       webhookUrl: https://discord.com/api/webhooks/420420420/jkshraqkudaihfjkseafhaksjhd
       template: ':crocodile: Fairu-chan says, "%s."'
       for: information
-    # kick your plex directories, onyl works for event 
+    # kick your plex directories, only works for event (run a partial scan)
     plex_scan:
       for: event
       webhookUrl: http://172.29.29.29:32400/
