@@ -37,24 +37,24 @@ Here’s a draft **“Flow”** section you can drop into your README. It uses b
 ```mermaid
 
 graph TD
-  A[Start: fairu-chan config.yml daemon] --> B[Parse args & load YAML]
-  B --> C[Initial scan, see Scan below]
-  C --> D{Daemon mode?}
-  D --|Yes|--> E[Enter sleep loop]
-  D --|No|--> F[Exit]
-  E --> G[Sleep for waitTime seconds]
-  G --> H{Config changed?}
-  H --|Yes|--> I[Reload config]
-  H --|No|--> J[Nothing]
-  I --> K{idleTime elapsed?}
+  A[START fairu-chan config.yml daemon] --> B[PARSE args & load YAML]
+  B --> C[Initial SCAN, see SCAN below]
+  C --> D{RUN in daemon mode?}
+  D --|Yes|--> E[SLEEP and wait loop]
+  D --|No|--> F[EXIT]
+  E --> G[SLEEP for waitTime seconds]
+  G --> H{CHECK config changed?}
+  H --|Yes|--> I[RELOAD config]
+  H --|No|--> J[RELOAD nothing]
+  I --> K{CHECK idleTime elapsed?}
   J --> K
   K --|No|--> G
-  K --|Yes|--> L[Scan: inFile.basePath]
-  L --> M[Match: apply inFile.inRegex to get named capture groups]
-  M --> N[Sort capture group names lexically]
-  N --> O[Map values: use optional mapFunction from group or global]
-  O --> P[Build paths: join outFile.basePath and outFile.outSprintf]
-  P --> Q[Action: copy or move per fileMode, default move]
+  K --|Yes|--> L[SCAN every unique inFile.basePath once]
+  L --> M[MATCH files against inFile.inRegex to get named capture groups]
+  M --> N[SORT capture group names lexically]
+  N --> O[MAP values use optional mapFunction from group or fallback to global]
+  O --> P[BUILD paths with outFile.basePath and outFile.outSprintf]
+  P --> Q[ACTION by copy or move per fileMode from group or fallback to global]
   Q --> E
 
 
