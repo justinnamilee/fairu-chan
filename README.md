@@ -206,6 +206,8 @@ Licensed under **GPL-3.0**. See [LICENSE](LICENSE) for the fine print (it’s no
 
 ## 🔒 Secret Bonus (aka "Shhhh")
 
+### Here's One to Figure Out for You
+
 ```yaml
 
 data:
@@ -215,10 +217,17 @@ data:
       b: 'my ($b) = @_; if ($b =~ / S(\d+) - (\d+)/) { my $e = sprintf(q[ - S%02dE%02d], $1, $2); $b =~ s/ S\d+ - \d+/$e/ } return ($b)'
     inFile:
       recurse: true
-      basePath: /home/justin/Downloads
+      basePath: /home/user/Downloads
       inRegex: '(?<b>\[(?:[^\]].+?])\] (?<a>.+?)(?:\.+)?(?: S\d+)? - \d+(?i: ?v\d+)?(?i: END)?(?: (?:\(|\[).+?)?\.mkv)$'
     outFile:
       basePath: '/mnt/netmount/multimedia/Television'
       # A has the directory, B is the file name
       outSprintf: '%s/%s'
 ```
+
+### The Mysterious Bin Folder
+
+* Contains the (still maintained) script that inspired `fairu-chan`, the aptly named `rename` script.
+* Useful if you need to do stuff one-off and don't want to write YAML.
+* It has POD in the file / help if you'd like to use it, works much the same way as `fairu-chan` (go figure).
+* Still use it a few times a week myself even while `fairu-chan` does the heavy-lifting for the automated content.
