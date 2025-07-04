@@ -32,6 +32,16 @@ meta:
       webhookUrl: https://discord.com/api/webhooks/420420420/jkshraqkudaihfjkseafhaksjhd
       template: ':crocodile: Fairu-chan says, "%s."'
       for: information
+    # kick your plex directories, onyl works for event 
+    plex_scan:
+      for: event
+      webhookUrl: http://172.29.29.29:32400/
+      # see PlexOnlineToken in your ~/Library/Application Support/Plex Media Server/Preferences.xml
+      token: 2e2e2e2e2e2e2e2e2e 
+      libraries:
+        # these need to map root_path to library_section_id, see section_locations table in sqlite db
+        /mnt/netmount/smb/Television: 1
+        /mnt/netmount/nfs/Movies: 5
 
 # (REQUIRED) here you'll have your groups
 data:
