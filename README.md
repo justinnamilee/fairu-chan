@@ -9,13 +9,22 @@
 
 ## ⚡ Features (aka “What magic does this little script pull?”)
 
-* **Regex-fu mastery**: Slurp up filenames with regex ninja moves and drop them into tidy folders. No black belts required.
-* **Dry-run mode**: Peek behind the curtain without touching your files. Because curiosity shouldn’t wreck havoc.
-* **Daemon mode**: Lives in the shadows, constantly stalking your ingest folders and pouncing on new files.
+* **Regex-fu input**: Slurp up filenames with regex ninja moves. No black belts required, but maybe some jutsu.
+* **Printf-style output**: Specify the output (paths and filenames) based on your ninja regex matches.
+* **Custom mapping spells**: Conjure up capture-group transformations with your own Perl incantations (subroutines) between input and output.
+* **Run Modes**:
+  * **Dry-Run mode**: Peek behind the curtain without touching your files. Because curiosity shouldn’t wreck havoc.
+  * **Single-shot mode**: Actually do something, but only the once. Use after validating with Dry-Run mode.
+  * **Daemon mode**: Lives in the shadows, constantly stalking your ingest folders and pouncing on new files.  Use once comfy.
 * **Auto-reload**: Change your YAML, and fairu-chan reloads faster than you can spill coffee on your keyboard (requires `File::Monitor`).
-* **Custom mapping spells**: Conjure up capture-group transformations with your own Perl incantations.
-* **Notifications**: Brag to your Discord server every time it sorts something—“fairu-chan processed a file, *praise be*!”
-* **Signal handling**: Send UNIX voodoo (`SIGUSR1`, `SIGUSR2`, `SIGTERM`, `SIGINT`) for graceful exits, config reloads, and on-demand scans.
+* **Signal handling**: Send UNIX voodoo (`SIGUSR1`, `SIGUSR2`, `SIGTERM`, `SIGINT`) for graceful events:
+  * `SIGUSR1` will cause it to scan immediately on next checkin.
+  * `SIGUSR2` will cause it to reload the config then scan on next checkin.
+  * `SIGTERM` will cause a graceful shutdown after next action finishes.
+  * `SIGINT` will ungracefully murder the demon.
+* **Notifications**:
+  * Brag to your Discord server every time it sorts something—“fairu-chan processed a file, *praise be*!”
+  * Send partial scan notices to your Plex server, for cool CIFS/NFS users.
 
 ---
 
@@ -67,15 +76,15 @@ perl fairu-chan /path/to/config.yml daemon
 
 ## 📝 Configuration (aka “Feed me YAML, baby”)
 
-Craft a YAML file with two main sections: `meta` (global voodoo settings) and `data` (your file-slaying rules).
+Craft a YAML file with two main sections: `meta` (global voodoo settings, *optional*) and `data` (your file-slaying rules, *required*), like so:
 
 ```yaml
 
 meta:
-  autoreload: true        # true = reload when you tweak the YAML; false = stubborn
-  recurse: false          # true = go deep; false = stick to the surface
-  idleTime: 300           # seconds between full-directory recon missions
-  waitTime: 5             # seconds between checkins (lower = jumpier, more config reloads)
+  autoreload: true
+  recurse: false
+  idleTime: 300
+  waitTime: 5
   notification:
     discord:
       type: discord
@@ -84,16 +93,6 @@ meta:
       for: event
 
 data:
-  Movies:
-    precedence: 10
-    fileMode: copy
-    inFile:
-      basePath: "/mnt/ingest/movies"
-      inRegex: "(?<title>.+?) - S(?<season>\\d+)E(?<episode>\\d+)\\..+"
-    outFile:
-      basePath: "/mnt/media/Movies"
-      outSprintf: "%{title} - S%02dE%02d.mp4"
-
   Pictures:
     fileMode: move
     inFile:
@@ -105,31 +104,17 @@ data:
       outSprintf: "%{date}/photo_%05d.jpg"
 ```
 
-*Sample config and commentary: see `sample-conf.yml` for a guided tour.*
+### *Full sample config with commentary: See [`sample-conf.yml`](sample-conf.yml) for the guided tour.*
 
 ---
 
 ## ⚙️ Systemd Service Example (aka “Turn it into a real daemon”)
 
-Save **sample-service.service** to `/etc/systemd/system/`:
-
-```ini
-
-[Unit]
-Description=fairu-chan: your file-hoarder’s worst nightmare
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/fairu-chan /etc/fairu-chan/config.yml daemon
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
+Save [`sample-service.service`](sample-service.service) to `/etc/systemd/system/`:
 
 ```bash
 
+cp sample-service.service /etc/systemd/system/fairu-chan.service
 systemctl daemon-reload
 systemctl enable fairu-chan
 systemctl start fairu-chan
@@ -139,16 +124,16 @@ systemctl start fairu-chan
 
 ## 🤝 Contributing (aka “Join the coven”)
 
-1. Fork it
+1. Fork it, or whatever
 2. Create a branch: `git checkout -b feat/my-awesome-spell`
 3. Commit your sorcery: `git commit -m "Add feature X"`
 4. Push it: `git push origin feat/my-awesome-spell`
 5. Open a PR and await divine feedback
 
-*Please stick to the existing Perl arcana.*
+> *Please stick to the existing Perl arcana (AKA the obtuse formatting).*
 
 ---
 
 ## 📜 License
 
-Licensed under **GPL-3.0**. See [LICENSE](LICENSE) for the fine print (it’s not scary, promise).
+Licensed under **GPL-3.0**. See [LICENSE](LICENSE) for the fine print (it’s not *that* scary, promise).
