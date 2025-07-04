@@ -19,8 +19,6 @@ sub new($)
 
   if (ref($config) eq q[HASH] && length($config->{template}) > 0)
   {
-    $notification->{template} = $config->{template};
-
     unless (defined($loaded))
     {
       require Data::Validate::URI;
@@ -30,6 +28,7 @@ sub new($)
       $loaded = __PACKAGE__;
     }
 
+    $notification->{template} = $config->{template};
     my $verify = defined($config->{verify}) ? $config->{verify} : DEF_VRF;
 
     if (Data::Validate::URI::is_https_uri($config->{webhookUrl}))
@@ -51,7 +50,7 @@ sub new($)
     }
     else
     {
-      warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL string\n];
+      warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL\n];
       $error++;
     }
   }
@@ -66,9 +65,9 @@ sub new($)
 
 sub handler(@)
 {
-  my ($self, @data) = @_;
+  my ($self, $path) = @_;
 
-  $self->{hook}->execute(sprintf($self->{template}, map { File::Basename::basename($_) } @data));
+  $self->{hook}->execute(sprintf($self->{template}, (File::Basename::fileparse($path))[0]));
 }
 
 
