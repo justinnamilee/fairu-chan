@@ -8,6 +8,7 @@ use lib q[lib];
 
 
 use fairu::notification::discord;
+use fairu::notification::plex;
 # TODO: more notification types here?
 
 
