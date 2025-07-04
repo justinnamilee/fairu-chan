@@ -28,6 +28,60 @@
 
 ---
 
+Here’s a draft **“Flow”** section you can drop into your README. It uses both a Mermaid diagram for a visual overview and a bullet-list for more details. I’ve cited the relevant parts of the code so you can see exactly where each step comes from.
+
+---
+
+## 🔄 Flow
+
+```mermaid
+
+flowchart TD
+  A[Start: `fairu-chan <config.yml> daemon`] --> B[Parse CLI args & load YAML config]
+  B --> C[Initial scan (`uwu`)]
+  C --> D{Daemon mode?}
+  D -->|Yes| E[Enter sleep loop]
+  D -->|No| F[Exit]
+  E --> G[Sleep for `waitTime` seconds]
+  G --> H{Config changed?}
+  H -->|Yes| I[Reload config]
+  H -->|No| J[—]
+  G --> K{`idleTime` elapsed?}
+  K -->|Yes| L[Scan (`uwu`)]
+  K -->|No| G
+  L --> E
+```
+
+1. **Initialization**
+   On startup, `fairu-chan` parses the command-line arguments and loads the YAML config (exiting on parse/validation failure).
+2. **Initial scan**
+   It immediately calls the scanner, which gathers files, matches them to your regex rules, and builds an input→output map.
+3. **Daemon loop**
+   If you ran in `daemon` mode, it then:
+
+   * Sleeps in `waitTime`-second increments
+   * On each wake: checks for config changes (reloads if needed) and decrements an internal `idle` counter
+   * When the counter hits zero (i.e. after `idleTime` seconds), triggers another full scan and resets the counter.
+4. **File discovery**
+   Directories (recursively if enabled) are scanned via `scanFiles` to build a flat list of candidates.
+5. **Pattern matching**
+   Each filename is tested against every grouping’s `inRegex`; if more than one matches, the `precedence` rules decide which wins.
+6. **Path computation**
+   For each match, an output path is computed by joining the group’s `outFile.basePath` with a `sprintf` of your named capture groups (applying any `mapFunction`s).
+7. **Processing**
+   If running (`run` action), the script creates any missing directories and then either `move`s or `copy`s each file according to `fileMode`.
+8. **Notifications**
+   After processing each file it sends an “event” notification (e.g. Discord); when the run finishes it sends a “debug” summary.
+9. **Signals & shutdown**
+   While daemonized it listens for:
+
+   * `SIGTERM`: graceful shutdown after current work
+   * `SIGUSR1`: force a scan on next cycle
+   * `SIGUSR2`: reload config immediately
+   * `SIGINT`: immediate exit (bad)
+
+---
+
 ## 🛠 Requirements (aka “Because nothing’s free, not even in open source”)
 
 * Required CPAN modules:
