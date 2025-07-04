@@ -1,5 +1,6 @@
 [Unit]
 Description=fairu-chan
+After=network.target
 #After=<some required mounts maybe> (or see below for a better option, perhaps)
 
 [Service]
