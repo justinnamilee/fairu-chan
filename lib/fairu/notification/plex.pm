@@ -69,7 +69,7 @@ sub handler(@)
 
     unless ($res->{success})
     {
-      warn qq[Couldn't scan '$dir' ($res->{status}: $res->{reason})\n];
+      warn qq[Couldn't scan '$dir': $res->{status} => $res->{reason}\n];
     }
   }
 }
