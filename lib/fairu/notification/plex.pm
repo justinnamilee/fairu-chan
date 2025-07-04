@@ -46,7 +46,7 @@ sub new($)
   }
   else
   {
-    warn qq[Couldn't configure Plex: config must be a HASH with keys 'webhookUrl', 'token', and 'libraries'\n];
+    warn qq[Couldn't configure Plex: config must be a HASH with keys 'webhookUrl', 'webhookToken', and 'libraries'\n];
     $error++;
   }
 

@@ -33,14 +33,14 @@ meta:
       template: ':crocodile: Fairu-chan says, "%s."'
       for: information
     # kick your plex directories, only works for: event (run a partial scan)
-    plex_scan:
+    plex_scan_notify:
       for: event
-      webhookUrl: http://172.29.29.29:32400/
+      webhookUrl: http://172.29.29.29:32400
       # see PlexOnlineToken in your ~/Library/Application Support/Plex Media Server/Preferences.xml
-      token: 2e2e2e2e2e2e2e2e2e 
+      webhookToken: 2e2e2e2e2e2e2e2e2e 
       libraries:
         # these need to map root_path to library_section_id, see section_locations table in sqlite db
-        /mnt/netmount/smb/Television: 1
+        /mnt/netmount/smb/Television: 2
         /mnt/netmount/nfs/Movies: 5
 
 # (REQUIRED) here you'll have your groups
