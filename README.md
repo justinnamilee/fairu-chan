@@ -198,13 +198,13 @@ systemctl start fairu-chan
 
 ---
 
-## 📜 License
+## 📜 License (aka "...License")
 
 Licensed under **GPL-3.0**. See [LICENSE](LICENSE) for the fine print (it’s not *that* scary, promise).
 
 ---
 
-## (Secret Bonus, Ssssshhhhhh)
+## 🔒 Secret Bonus (aka "Shhhh")
 
 ```yaml
 
