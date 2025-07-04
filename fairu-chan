@@ -43,6 +43,7 @@ $idle = (meta->{idleTime} || DEF_IDLE) if ($run == 1);
 if ($run && meta->{autoreload})
 {
   require File::Monitor;
+
   $watch = File::Monitor->new();
   $watch->watch($file, sub { $reload = 1, $idle = 0 });
 }
