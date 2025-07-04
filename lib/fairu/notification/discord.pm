@@ -65,9 +65,16 @@ sub new($)
 
 sub handler(@)
 {
-  my ($self, $path) = @_;
+  my ($self, $mode, @data) = @_;
 
-  $self->{hook}->execute(sprintf($self->{template}, (File::Basename::fileparse($path))[0]));
+  if ($mode eq 'event')
+  {
+    $self->{hook}->execute(sprintf($self->{template}, (File::Basename::fileparse($data[0]))[0]));
+  }
+  else
+  {
+    $self->{hook}->execute(sprintf($self->{template}, @data));
+  }
 }
 
 
