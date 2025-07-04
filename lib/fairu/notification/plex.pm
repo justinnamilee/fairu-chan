@@ -58,7 +58,16 @@ sub handler(@)
   my ($self, $path) = @_;
 
   (my $dir = (File::Basename::fileparse($path))[1]) =~ s|/+$||;
-  my $section = $self->{lib}->{$dir};
+  my $section = undef;
+
+  foreach my $k (keys(%{$self->{lib}}))
+  {
+    if (index($dir, $k) == 0)
+    {
+      $section = $self->{lib}->{$k};
+      last;
+    }
+  }
 
   if (defined($section) && $section > 0)
   {
