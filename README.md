@@ -37,8 +37,8 @@ Here’s a draft **“Flow”** section you can drop into your README. It uses b
 ```mermaid
 
 graph TD
-  A[Start: fairu-chan &lt;config.yml&gt; daemon] --> B[Parse CLI args & load YAML config]
-  B --> C[Initial scan (uwu)]
+  A[Start: fairu-chan config.yml daemon] --> B[Parse args & load YAML]
+  B --> C[Initial scan, see Scan below]
   C --> D{Daemon mode?}
   D --|Yes|--> E[Enter sleep loop]
   D --|No|--> F[Exit]
@@ -48,9 +48,15 @@ graph TD
   H --|No|--> J[Nothing]
   I --> K{idleTime elapsed?}
   J --> K
-  K --|Yes|--> L[Scan (uwu)]
   K --|No|--> G
-  L --> E
+  K --|Yes|--> L[Scan: inFile.basePath]
+  L --> M[Match: apply inFile.inRegex to get named capture groups]
+  M --> N[Sort capture group names lexically]
+  N --> O[Map values: use optional mapFunction from group or global]
+  O --> P[Build paths: join outFile.basePath and outFile.outSprintf]
+  P --> Q[Action: copy or move per fileMode, default move]
+  Q --> E
+
 
 ```
 
