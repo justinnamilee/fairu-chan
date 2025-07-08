@@ -28,7 +28,7 @@ sub help();
 # global variables in order of OPTIONS + defaults
 my $name = basename($0);
 my $help = 0;
-my $verbose = undef;
+my $verbose = 0;
 my $copy = 0; # default is to move
 my $directory = '.';
 my $run = 0;
@@ -62,7 +62,7 @@ GETOPT:
 
   my %input = (
     q[help|h]         => \$help,
-    q[verbose|v]      => \$verbose,
+    q[verbose|v+]     => \$verbose,
     q[copy|c]         => \$copy,
     q[directory|d=s]  => \$directory,
     q[execute|e]      => \$run,
@@ -118,7 +118,7 @@ GETOPT:
 
 
 # print extra-extra information if requested
-if ($verbose)
+if ($verbose > 1)
 {
   print STDERR qq[[DEBUG] Mode:      ]. ($copy ? q[Copy] : q[Move]) .qq[\n];
   print STDERR qq[[DEBUG] Filter:    $filter\n];
@@ -276,7 +276,7 @@ sub help()
     warn qq[\n\t\t <2:format> -> Output string in Perl sprintf format, sorted capture groups as input, see POD for details.\n];
     warn qq[\n\t\tOptional:\n];
     warn qq[\n\t\t-h -> Display help message.\n];
-    warn qq[\n\t\t-v -> Enable verbose output.\n];
+    warn qq[\n\t\t-v -> Enable verbose output, add two for debug output.\n];
     warn qq[\n\t\t-c -> Enable copy mode (instead of move).\n];
     warn qq[\n\t\t-e -> Enable "execute" mode, otherwise this script just says what it would do without doing it.\n];
     warn qq[\n\t\t-r -> Enable folder recursion on file scan.\n];
@@ -323,7 +323,7 @@ Duh.
 
 =item VERBOSE B<-v|--verbose>
 
-Print's event information as it happens.
+Print's event information as it happens.  Add a second for B<DEBUG> mode.
 
 =item COPY B<-c|--copy>
 
