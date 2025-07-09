@@ -36,7 +36,7 @@
 
 graph TD
   A[START fairu-chan] --> B[PARSE args & load YAML]
-  B --> C[Initial SCAN, see SCAN below]
+  B --> C[SCAN once immediately, see SCAN below for details]
   C --> D{RUN in daemon mode?}
   D --|Yes|--> G[SLEEP for waitTime seconds]
   D --|No|--> F[EXIT]
