@@ -30,8 +30,6 @@
 
 ## 🔄 Flow (aka “What the heck does it do?”)
 
-### One Heck of a Diagram
-
 ```mermaid
 
 graph TD
@@ -54,41 +52,7 @@ graph TD
   Q --> R[NOTIFY event handlers if present]
   R --> G
 
-
 ```
-
-### In Words Instead of a Diagram
-
-1. **Initialization**
-   On startup, `fairu-chan` parses the command-line arguments and loads the YAML config (exiting on parse/validation failure).
-2. **Initial scan**
-   It immediately calls the scanner, which gathers files, matches them to your regex rules, and builds an input→output map.
-3. **Daemon loop**
-   If you ran in `daemon` mode, it then:
-
-   * Sleeps in `waitTime`-second increments
-   * On each wake: checks for config changes (reloads if needed) and decrements an internal `idle` counter
-   * When the counter hits zero (i.e. after `idleTime` seconds), triggers another full scan and resets the counter.
-4. **File discovery**
-   Directories (recursively if enabled) are scanned via `scanFiles` to build a flat list of candidates.
-5. **Pattern matching**
-   Each filename is tested against every grouping’s `inRegex`; if more than one matches, the `precedence` rules decide which wins.
-6. **Path computation**
-   For each match, an output path is computed by joining the group’s `outFile.basePath` with a `sprintf` of your named capture groups (applying any `mapFunction`s).
-7. **Processing**
-   If running (`run` action), the script creates any missing directories and then either `move`s or `copy`s each file according to `fileMode`.
-8. **Notifications**
-   After processing each file it sends an “event” notification (e.g. Discord); when the run finishes it sends a “debug” summary.
-
-   * Discord can accept event, information, and debug types; they are output to a webhook for a channel through a template.
-   * Plex only accepts event; it strips off the file at the end, and tells the Plex API to do a partial scan on the folder.
-9. **Signals & shutdown**
-   While daemonized it listens for:
-
-   * `SIGTERM`: graceful shutdown after current work
-   * `SIGUSR1`: force a scan on next cycle
-   * `SIGUSR2`: reload config immediately
-   * `SIGINT`: immediate exit (bad)
 
 ---
 
