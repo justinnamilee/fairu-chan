@@ -38,9 +38,8 @@ graph TD
   A[START fairu-chan] --> B[PARSE args & load YAML]
   B --> C[Initial SCAN, see SCAN below]
   C --> D{RUN in daemon mode?}
-  D --|Yes|--> E[SLEEP and wait loop]
+  D --|Yes|--> G[SLEEP for waitTime seconds]
   D --|No|--> F[EXIT]
-  E --> G[SLEEP for waitTime seconds]
   G --> H{CHECK config changed?}
   H --|Yes|--> I[RELOAD config]
   H --|No|--> K
@@ -52,7 +51,7 @@ graph TD
   N --> O[MAP values using optional mapFunction from group or fallback to global]
   O --> P[BUILD paths with outFile.basePath and outFile.outSprintf]
   P --> Q[ACTION by copy or move per fileMode from group or fallback to global]
-  Q --> E
+  Q --> G
 
 
 ```
