@@ -52,7 +52,7 @@ graph TD
   O --> P[BUILD paths with outFile.basePath and outFile.outSprintf]
   P --> Q[ACTION by copy or move per fileMode from group or fallback to global]
   Q --> R[NOTIFY event handlers if present]
-  R --> E
+  R --> G
 
 
 ```
