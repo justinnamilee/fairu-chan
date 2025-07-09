@@ -51,7 +51,8 @@ graph TD
   N --> O[MAP values using optional mapFunction from group or fallback to global]
   O --> P[BUILD paths with outFile.basePath and outFile.outSprintf]
   P --> Q[ACTION by copy or move per fileMode from group or fallback to global]
-  Q --> G
+  Q --> R[NOTIFY event handlers if present]
+  R --> E
 
 
 ```
