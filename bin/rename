@@ -199,7 +199,7 @@ foreach my $old (@file)
   }
   else # no match
   {
-    print qq[Skip: '$old'\n] if $verbose;
+    print qq[Skip: '$old'\n] if $verbose > 1;
   }
 }
 
