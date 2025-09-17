@@ -78,10 +78,12 @@ graph TD
 
 ```bash
 
+cd /opt
 git clone https://github.com/justinnamilee/fairu-chan.git  # probably pick the latest tagged version
 cd fairu-chan
-cp fairu-chan /usr/local/bin/  # or wherever you stash your secret tools
-chmod +x /usr/local/binfairu-chan
+cp sample-service.service /etc/systemd/system/fairu-chan.service
+systemctl daemon-reload
+touch /etc/fairu-chan.yml  # edit this file the way you want
 ```
 
 ---
@@ -91,13 +93,13 @@ chmod +x /usr/local/binfairu-chan
 ```bash
 
 # Peek at what’ll happen (dry-run):
-perl fairu-chan /path/to/config.yml
+perl fairu-chan /etc/fairu-chan.yml
 
 # One-shot tidy-up:
-perl fairu-chan /path/to/config.yml run
+perl fairu-chan /etc/fairu-chan.yml run
 
 # Become a background lurker (daemon mode):
-perl fairu-chan /path/to/config.yml daemon
+perl fairu-chan /etc/fairu-chan.yml daemon
 ```
 
 ---
