@@ -29,7 +29,7 @@ sub new($)
     }
 
     $notification->{template} = $config->{template};
-    my $verify = defined($config->{verify}) ? $config->{verify} : DEF_VRF;
+    my $verify = $config->{verify} // DEF_VRF;
 
     if (Data::Validate::URI::is_https_uri($config->{webhookUrl}))
     {
