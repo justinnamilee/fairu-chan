@@ -78,6 +78,7 @@ graph TD
 
 ```bash
 
+curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n YAML::PP
 cd /opt
 git clone https://github.com/justinnamilee/fairu-chan.git  # probably pick the latest tagged version
 cd fairu-chan
