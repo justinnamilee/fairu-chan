@@ -1,0 +1,98 @@
+---
+
+# (OPTIONAL) whole section is optional, you can omit it
+meta:
+  # (OPTIONAL) reload the config automatically on change? (requires File::Monitor)
+  autoreload: false
+  # (OPTINAL) global recurse flag for the scan directories, default false
+  recurse: false
+  # (OPTINAL) how many seconds between runs if daemonizing, default 600
+  idleTime: 200
+  # (OPTIONAL) how many seconds between checks, default 5 [probably leave it at 5]
+  waitTime: 13
+  # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too,
+  #            these are automatically wrapped in 'sub { }' inside the script;
+  #            these maps apply to ALL matches as opposed to the ones that are in the groupings
+  mapFunction:
+    # the name should match a capture group, and it will be passed the data from that group;
+    a_epnum: 'uc shift'
+  # (OPTIONAL) remove notification field or leave undefined if you don't want one, see README
+  notification:
+    # name of the notification, you could have mutliple discord notifications sent, for example
+    discord1:
+      # the type is a required field if you are including a notification
+      type: discord
+      webhookUrl: https://discord.com/api/webhooks/69696969/lkjasdlkjasdlkjasdlkjasdlkjasd
+      template: 'Posted `%s` to Plex!  Go enjoy, you filthy weeb.  :hot_face: :hot_face:'
+      # (OPTIONAL) which messages does this apply? default to ALL; options here are 'event', 'information', or 'debug'
+      for: event
+    # this one will be used for internal cause it has the 'for: internal' tag
+    discord_internal:
+      type: discord
+      webhookUrl: https://discord.com/api/webhooks/420420420/jkshraqkudaihfjkseafhaksjhd
+      template: ':crocodile: Fairu-chan says, "%s."'
+      for: information
+    # kick your plex directories, only works for: event (run a partial scan)
+    plex_scan_notify:
+      for: event
+      webhookUrl: http://172.29.29.29:32400
+      # see PlexOnlineToken in your ~/Library/Application Support/Plex Media Server/Preferences.xml
+      webhookToken: 2e2e2e2e2e2e2e2e2e 
+      libraries:
+        # these need to map root_path to library_section_id, see section_locations table in sqlite db
+        /mnt/netmount/smb/Television: 2
+        /mnt/netmount/nfs/Movies: 5
+
+# (REQUIRED) here you'll have your groups
+data:
+  # you can name the groupings whatever you want, they are taken unsorted
+  nameOfGrouping:
+    # (OPTIONAL) if more than one match applies, take the one with lower precedence value,
+    #            undef counts as +inf; if neither match has precedence defined then which
+    #            ever hash key is hit first will be chosen (these are not sorted)
+    precedence: 100
+    # (OPTIONAL) this should be copy or move, default to copy
+    fileMode: copy
+    # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too,
+    #            these are automatically wrapped in 'sub { }' inside the script; note
+    #            mapFunction in a grouping overrides a matching mapFunction globally
+    mapFunction:
+      # for example, convert the b_second data to lower case
+      b_second: 'lc shift'
+    # (REQURIED) location that files will be in originally
+    inFile:
+      # (OPTIONAL) recursively
+      recurse: true
+      # (REQUIRED) where are the files tho?
+      basePath: /path/to/input/folder
+      # (REQUIRED) regex for matching, use NAMED capture groups to extract data (?<name>regex)
+      inRegex: 'Some Stuff Here - (?<a_first>\d\d)(?<b_second>(?i:v\d+)? .+)'
+    # (REQUIRED) where do you want them to go?
+    outFile:
+      # (REQUIRED) what's the path, bro
+      basePath: '/home/jdog/Videos'
+      # the capture groups will be sorted (lexical) then put into this sprintf
+      outSprintf: 'Maybe Different Stuff - %03d - %s'
+
+  # sort pictures or something
+  pictureSorter:
+    fileMode: move
+    inFile:
+      basePath: /home/jdog/Pictures
+      inRegex: 'DCIM(?<a_picnum>\d+)_(?<b_date>\d\d\d\d-\d\d-\d\d)(?<c_extra>.+)\.(?i:jpe?g)'
+    outFile:
+      basePath: '/home/jdog/Pictures'
+      outSprintf: 'picture[%05d] from %s - %s.jpg'
+
+  # this takes any file from '[VideoGroupTag]' and sorts it into it's own subdirectory
+  matchTaggedRecursive:
+    fileMode: copy
+    inFile:
+      recurse: true
+      basePath: /home/jdog/Downloads
+      # noticed <a> is inside <b>, totally fine
+      inRegex: '(?<b>\[VideoGroupTag\] (?<a>.+?)(?:\.)?(?: - \d+)? (?:\(|\[).+\.(?i:mkv|mp4|avi))$'
+    outFile:
+      basePath: '/mnt/nas/Video'
+      # paths will be created as needed
+      outSprintf: '%s/%s'
