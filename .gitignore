@@ -1,6 +1,7 @@
 # Custom
 .vscode/
 fairu.yml
+testing/
 
 # Perl
 !Build/
