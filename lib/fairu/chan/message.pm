@@ -4,7 +4,6 @@ package fairu::chan::message;
 
 use strict;
 
-use lib q[lib];
 use fairu::chan::message::english;
 
 
