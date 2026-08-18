@@ -6,7 +6,9 @@ use strict;
 use lib q[lib];
 
 use YAML::PP;
+use fairu::chan::message;
 use fairu::notification;
+
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
 
@@ -40,37 +42,37 @@ sub validateGrouping($$)
   #* required options for a group
   unless (ref($group) eq 'HASH')
   {
-    warn qq[Failed to validate config($title): grouping should be a hash];
+    warn fairu::chan::message::get(conf_group => $title);
     $error++;
   }
 
   unless (ref($group->{inFile}) eq q[HASH] && ref($group->{outFile}) eq q[HASH])
   {
-    warn qq[Failed to validate config($title): inFile and outFile should be hashes\n];
+    warn fairu::chan::message::get(conf_group_in_out => $title);
     $error++;
   }
 
   unless (-d $group->{inFile}->{basePath})
   {
-    warn qq[Failed to validate config($title): inFile->basePath '$group->{inFile}->{basePath}' is not a directory\n];
+    warn fairu::chan::message::get(conf_group_in_base => $title, $group->{inFile}->{basePath});
     $error++;
   }
 
   unless ((! -e $group->{outFile}->{basePath}) || -d $group->{outFile}->{basePath})
   {
-    warn qq[Failed to validate config($title): outFile->basePath '$group->{outFile}->{basePath}' is not a directory\n];
+    warn fairu::chan::message::get(conf_group_out_base => $title, $group->{outFile}->{basePath});
     $error++;
   }
 
   unless (length($group->{inFile}->{inRegex}) > 0)
   {
-    warn qq[Failed to validate config($title): inFile->inRegex should be a string of length > 0\n];
+    warn fairu::chan::message::get(conf_group_in_regex => $title);
     $error++;
   }
 
   unless (length($group->{outFile}->{outSprintf}) > 0)
   {
-    warn qq[Failed to validate config($title): outFile->outSprintf should be a string of length > 0\n];
+    warn fairu::chan::message::get(conf_group_out_sprintf => $title);
     $error++;
   }
 
@@ -80,7 +82,7 @@ sub validateGrouping($$)
 
   unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
   {
-    warn qq[Failed to validate config($title): fileMode should be 'copy' or 'move'\n];
+    warn fairu::chan::message::get(conf_group_file_mode => $title);
     $error++;
   }
 
@@ -95,14 +97,14 @@ sub validateGrouping($$)
 
         if ($@ || ref($group->{mapFunction}->{$map}) ne q[CODE])
         {
-          warn qq[Failed to validate config($title): mapFunction->$map should be a string containing a valid perlsub];
+          warn fairu::chan::message::get(conf_group_map_item => $title, $map);
           $error++
         }
       }
     }
     else
     {
-      warn qq[Failed to validate config($title): outFile->mapFunction should be a hash containing perlsubs\n];
+      warn fairu::chan::message::get(conf_group_map => $title);
       $error++;
     }
   }

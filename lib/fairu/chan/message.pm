@@ -15,7 +15,7 @@ my $name = fairu::chan::message::english::name;
 sub get($;@)
 {
   my ($key, @f) = @_;
-  my $ret = sprintf($default->(q[bad_message_key]), $name, $key);
+  my $ret = sprintf($default->(q[message_key]), $name, $key);
 
   if (defined(my $msg = $interface->($key)))
   {
@@ -39,7 +39,7 @@ sub set($)
   }
   else
   {
-    die get(bad_message_language => $language);
+    die get(message_language => $language);
   }
 }
 
