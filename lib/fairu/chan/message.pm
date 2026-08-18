@@ -1,17 +1,22 @@
 #!/usr/bin/perl
 
+package fairu::chan::message;
+
 use strict;
 
+use lib q[lib];
 use fairu::chan::message::english;
 
-my $default = fairu::chan::message::english->interface;
+
+my $default = fairu::chan::message::english::interface;
 my $interface = $default;
+my $name = fairu::chan::message::english::name;
 
 
 sub get($;@)
 {
   my ($key, @f) = @_;
-  my $ret = sprintf($default->(q[bad_message_key]), $interface->name, $key);
+  my $ret = sprintf($default->(q[bad_message_key]), $name, $key);
 
   if (defined(my $msg = $interface->($key)))
   {
@@ -24,11 +29,14 @@ sub get($;@)
 sub set($)
 {
   my ($language) = @_;
+
+  my $require = qq[fairu/chan/message/$language.pm];
   my $package = qq[fairu::chan::message::$language];
 
-  if (eval { require $package })
+  if (eval { require $require })
   {
     $interface = $package->interface;
+    $name = $package->name;
   }
   else
   {
