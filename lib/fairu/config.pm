@@ -196,15 +196,15 @@ sub validateData($)
 
 sub parse($)
 {
-  my ($error, $newConfig, $file) = (0, undef, @_);
+  my ($error, $newConfig, $path) = (0, undef, @_);
 
-  if (-f $file && -r $file)
+  if (-f $path && -r $path)
   {
-    eval { $newConfig = YAML::PP::LoadFile($file) };
+    eval { $newConfig = YAML::PP::LoadFile($path) };
 
     if ($@)
     {
-      warn qq[Failed to parse config: $file should be a valid YAML file\n];
+      warn fairu::chan::message::get(conf_parse_loadfile => $path);
       $error++;
     }
     else
@@ -219,24 +219,24 @@ sub parse($)
   }
   else
   {
-    warn qq[Failed to parse config: input should be a readable file\n];
+    warn fairu::chan::message::get(conf_parse_not_valid => $path);
     $error++;
   }
 
   if ($error == 0)
   {
     $config = $newConfig;
-    print qq[Config loaded...\n];
+    warn fairu::chan::message::get(q[conf_reload]);
 
     fairu::notification::send(q[information], q[Config loaded...]);
   }
   elsif (defined($config))
   {
-    warn qq[Keeping old config...\n];
+    warn fairu::chan::message::get(q[conf_no_reload]);
   }
   else
   {
-    warn qq[Problems found in config, aborting...\n];
+    warn fairu::chan::message::get(q[conf_no_config]);
   }
 
   return ($error);

@@ -23,6 +23,11 @@ my %message =
   conf_meta_notif_init   => qq[Failed to validate config(meta): Failed to parse notification section\n],
   conf_meta_notif_hash   => qq[Failed to validate config(meta): meta->notification should be a HASH\n],
   conf_meta_wait         => qq[Failed to validate config(meta): waitTime should be greater than or equal to zero\n],
+  conf_no_config         => qq[Failed to load config, aborting...\n],
+  conf_no_reload         => qq[Keeping old config...\n],
+  conf_parse_loadfile    => qq[Failed to parse config: '%s' should be a valid YAML file\n],
+  conf_parse_not_valid   => qq[Failed to parse config: '%s' is not a readable file or directory\n],
+  conf_reload            => qq[Config loaded...\n],
   message_language       => qq[Unable to load language: %s\n],
   message_key            => qq[Unknown language message key: %s: %s\n]
 );
