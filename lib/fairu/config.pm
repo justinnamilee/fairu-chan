@@ -123,13 +123,13 @@ sub validateMeta($)
     {
       unless (fairu::notification::init($meta->{notification}) == 0)
       {
-        warn qq[Failed to setup notifications: ¯\\_(ツ)_/¯\n];
+        warn fairu::chan::message::get(q[conf_meta_notif_init]);
         $error++;
       }
     }
     else
     {
-      warn qq[Failed to setup notifications: meta->notification should be a HASH\n];
+      warn fairu::chan::message::get(q[conf_meta_notif_hash]);
       $error++;
     }
   }
@@ -145,14 +145,14 @@ sub validateMeta($)
 
         if ($@ || ref($meta->{mapFunction}->{$map} ne q[CODE]))
         {
-          warn qq[Failed to validate config: mapFunction->$map should be a string containing a valid perlsub\n];
+          warn fairu::chan::message::get(conf_meta_map_item => $map);
           $error++;
         }
       }
     }
     else
     {
-      warn qq[Failed to validate config: mapFunction should be a hash containing perlsubs\n];
+      warn ;
       $error++;
     }
   }
@@ -161,7 +161,7 @@ sub validateMeta($)
   {
     unless ($meta->{idleTime} >= 0)
     {
-      warn qq[Failed to validate config: idleTime should be greater than or equal to zero\n];
+      warn fairu::chan::message::get(q[conf_meta_idle]);
       $error++;
     }
   }
@@ -170,7 +170,7 @@ sub validateMeta($)
   {
     unless ($meta->{waitTime} >= 0)
     {
-      warn qq[Failed to validate config: waitTime should be greater than or equal to zero\n];
+      warn fairu::chan::message::get(q[conf_meta_wait]);
       $error++;
     }
   }
