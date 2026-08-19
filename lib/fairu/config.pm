@@ -186,7 +186,7 @@ sub validateData($)
   {
     unless ((my $count = validateGrouping($title, $data->{$title})) == 0)
     {
-      warn qq[Failed to validate config($title): $count problem], $count > 1 ? q[s] : (), qq[ found\n];
+      warn fairu::chan::message::get(conf_data => $title, $count);
       $error++;
     }
   }

@@ -7,6 +7,7 @@ use strict;
 
 my %message =
 (
+  conf_data              => qq[Failed to validate config(%s): group parse terminate with errors: %d\n],
   conf_group             => qq[Failed to validate config(%s): grouping should be a hash\n],
   conf_group_file_mode   => qq[Failed to validate config(%s): fileMode should be 'copy' or 'move'\n],
   conf_group_in_base     => qq[Failed to validate config(%s): inFile->basePath '%s' is not a directory\n],
