@@ -178,7 +178,7 @@ sub validateMeta($)
 
 sub validateData($)
 {
-  my $data = @_;
+  my ($data) = @_;
   my $error = 0;
 
   foreach my $title (sort keys(%{$data}))
