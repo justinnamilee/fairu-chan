@@ -7,16 +7,11 @@ use lib q[lib];
 
 use YAML::PP;
 use fairu::chan::message;
+use fairu::chan::default;
 use fairu::notification;
 
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
-
-
-###
-# constants
-
-sub DEF_MODE() { q[copy] }
 
 
 ###
@@ -37,7 +32,8 @@ sub data() { ref($config) ? $config->{data} : {} }
 
 sub validateGrouping($$)
 {
-  my ($error, $title, $group) = (0, @_);
+  my ($title, $group) = @_;
+  my $error = 0;
 
   #* required options for a group
   unless (ref($group) eq 'HASH')
@@ -77,7 +73,8 @@ sub validateGrouping($$)
   }
 
   #* optional... options for a group
-  $group->{fileMode} = DEF_MODE unless (defined($group->{fileMode}));
+  $group->{fileMode} = fairu::chan::default->ACTION
+    unless (defined($group->{fileMode}));
   $group->{fileMode} = lc($group->{fileMode});
 
   unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
@@ -114,7 +111,8 @@ sub validateGrouping($$)
 
 sub validateMeta($)
 {
-  my ($error, $meta) = (0, @_);
+  my ($meta) = @_;
+  my $error = 0;
 
   #* optional... options for meta
   if (defined($meta->{notification}))
@@ -180,7 +178,8 @@ sub validateMeta($)
 
 sub validateData($)
 {
-  my ($error, $data) = (0, @_);
+  my $data = @_;
+  my $error = 0;
 
   foreach my $title (sort keys(%{$data}))
   {
@@ -196,7 +195,8 @@ sub validateData($)
 
 sub parse($)
 {
-  my ($error, $newConfig, $path) = (0, undef, @_);
+  my ($path) = @_;
+  my ($error, $newConfig) = (0, undef);
 
   if (-f $path && -r $path)
   {
