@@ -200,7 +200,7 @@ sub parse($)
 
   if (-f $path && -r $path)
   {
-    eval { $newConfig = YAML::PP::LoadFile($path) };
+    $newConfig = eval { YAML::PP::LoadFile($path) };
 
     if ($@)
     {
