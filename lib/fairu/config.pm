@@ -228,7 +228,7 @@ sub parse($)
     $config = $newConfig;
     warn fairu::chan::message::get(q[conf_reload]);
 
-    fairu::notification::send(q[information], q[Config loaded...]);
+    fairu::notification::send(q[information], fairu::chan::message::get(q[conf_reload]));
   }
   elsif (defined($config))
   {
