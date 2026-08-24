@@ -7,6 +7,11 @@ use strict;
 
 my %message =
 (
+  chan_action            => qq[Failed to %s '%s' to '%s': %s\n],
+  chan_build             => qq[Failed to create path: %s\n],
+  chan_open              => qq[Failed to open directory for reading: %s\n],
+  chan_notif_debug       => qq[Matched files: %d, Processed files: %d\n],
+  chan_success           => qq[%s: '%s' -> '%s'\n],
   conf_data              => qq[Failed to validate config(%s): group parse terminate with errors: %d\n],
   conf_group             => qq[Failed to validate config(%s): grouping should be a hash\n],
   conf_group_file_mode   => qq[Failed to validate config(%s): fileMode should be 'copy' or 'move'\n],
