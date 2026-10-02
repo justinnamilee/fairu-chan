@@ -4,7 +4,7 @@ package fairu::notification::discord;
 
 
 use strict;
-use fairu::chan::message;
+use fairu::message;
 
 
 sub DEF_VRF() { 1 }
@@ -38,7 +38,7 @@ sub new($)
       #? do a connection test / get the webhook thingie
       if (eval { $d->get })
       {
-        warn fairu::chan::message::get(q[discord_no_get]);
+        warn fairu::message::get(q[discord_no_get]);
         $error++;
       }
       else
@@ -48,13 +48,13 @@ sub new($)
     }
     else
     {
-      warn fairu::chan::message::get(discord_url_not_valid => $config->{webhookUrl});
+      warn fairu::message::get(discord_url_not_valid => $config->{webhookUrl});
       $error++;
     }
   }
   else
   {
-    warn fairu::chan::message::get(q[discord_conf_not_valid]);
+    warn fairu::message::get(q[discord_conf_not_valid]);
     $error++;
   }
 

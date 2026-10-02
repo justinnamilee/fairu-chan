@@ -1,14 +1,14 @@
 #!/usr/bin/perl
 
-package fairu::chan::message;
+package fairu::message;
 
 use strict;
-use fairu::chan::message::english;
+use fairu::message::english;
 
 
-my $default = fairu::chan::message::english::interface;
+my $default = fairu::message::english::interface;
 my $interface = $default;
-my $name = fairu::chan::message::english::name;
+my $name = fairu::message::english::name;
 
 
 sub get($;@)
@@ -29,7 +29,7 @@ sub set($)
   my ($language) = @_;
 
   my $require = qq[fairu/chan/message/$language.pm];
-  my $package = qq[fairu::chan::message::$language];
+  my $package = qq[fairu::message::$language];
 
   if (eval { require $require })
   {

@@ -4,7 +4,7 @@ package fairu::notification;
 
 
 use strict;
-use fairu::chan::message;
+use fairu::message;
 
 
 sub TYPE() { qw[event information debug] }
@@ -34,7 +34,7 @@ sub init($)
         }
         else
         {
-          warn fairu::chan::message::get(notif_compile_failed => $k);
+          warn fairu::message::get(notif_compile_failed => $k);
           $error++;
 
           next;
@@ -50,14 +50,14 @@ sub init($)
       }
       else
       {
-        warn fairu::chan::message::get(notif_conf_failed => $k);
+        warn fairu::message::get(notif_conf_failed => $k);
         $error++;
       }
     }
   }
   elsif (defined($config))
   {
-    warn fairu::chan::message::get(q[notif_conf_not_valid]);
+    warn fairu::message::get(q[notif_conf_not_valid]);
     $error++;
   }
 
@@ -78,11 +78,11 @@ sub send($@)
   {
     #? we'll YOLO these notifications with eval for now, no need to crash
     eval { $_->handler($mode, @data) for @{$notification->{$mode}} };
-    warn fairu::chan::message::get(q[notif_send_failed]) if ($@);
+    warn fairu::message::get(q[notif_send_failed]) if ($@);
   }
   else
   {
-    warn fairu::chan::message::get(notif_mode_not_valid => $mode);
+    warn fairu::message::get(notif_mode_not_valid => $mode);
   }
 }
 
