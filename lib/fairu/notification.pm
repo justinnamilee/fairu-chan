@@ -8,15 +8,13 @@ use lib q[lib];
 
 
 use fairu::chan::message;
-use fairu::notification::discord;
-use fairu::notification::plex;
-# TODO: more notification types here?
 
 
 sub TYPE() { qw[event information debug] }
 
 
 my $notification = undef;
+my %interface = ();
 
 
 sub init($)
@@ -27,37 +25,37 @@ sub init($)
   {
     foreach my $k (keys(%{$config}))
     {
-      if (lc($config->{$k}->{type}) eq q[discord])
+      my $type = lc($config->{$k}->{type});
+
+      unless (exists($interface{$type}))
       {
-        if (ref(my $n = fairu::notification::discord->new($config->{$k})))
+        my $require = qq[fairu/notification/$type.pm];
+
+        if (eval { require $require })
         {
-          foreach my $t (TYPE)
-          {
-            push(@{$new->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
-          }
+          $interface{$type} = qq[fairu::notification::$type];
         }
         else
         {
-          warn fairu::chan::message::get(notif_conf_failed => $k);
+          warn fairu::chan::message::get(notif_compile_failed => $k);
           $error++;
+
+          next;
         }
       }
-      elsif (lc($config->{$k}->{type}) eq q[plex])
+
+      if (ref(my $n = $interface{$type}->new($config->{$k})))
       {
-        if (ref(my $n = fairu::notification::plex->new($config->{$k})))
+        foreach my $t (TYPE)
         {
-          foreach my $t (TYPE)
-          {
-            push(@{$new->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
-          }
-        }
-        else
-        {
-          warn fairu::chan::message::get(notif_conf_failed => $k);
-          $error++;
+          push(@{$new->{$t}}, $n) if lc($config->{$k}->{for}) eq $t || !exists($config->{$k}->{for});
         }
       }
-      # TODO: elsif (other notification types)
+      else
+      {
+        warn fairu::chan::message::get(notif_conf_failed => $k);
+        $error++;
+      }
     }
   }
   elsif (defined($config))

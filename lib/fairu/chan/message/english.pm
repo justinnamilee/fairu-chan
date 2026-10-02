@@ -38,6 +38,7 @@ my %message =
   discord_url_not_valid  => qq[Couldn't configure Discord: '%s' should be a valid HTTPS URL\n],
   message_language       => qq[Unable to load language: %s\n],
   message_key            => qq[Unknown language message key: %s: %s\n],
+  notif_compile_failed   => qq[Couldn't compile notification(%s)],
   notif_conf_failed      => qq[Couldn't configure notification(%s)],
   notif_conf_not_valid   => qq[Couldn't configure notifications: meta->notification should be a HASH\n],
   notif_mode_not_valid   => qq[Unknown notification type '%s'.\n],
