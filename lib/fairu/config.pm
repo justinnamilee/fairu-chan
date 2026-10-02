@@ -3,13 +3,10 @@ package fairu::config;
 
 
 use strict;
-use lib q[lib];
-
 use YAML::PP;
 use fairu::chan::message;
 use fairu::chan::default;
 use fairu::notification;
-
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
 

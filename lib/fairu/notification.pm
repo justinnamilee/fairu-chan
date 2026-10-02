@@ -4,9 +4,6 @@ package fairu::notification;
 
 
 use strict;
-use lib q[lib];
-
-
 use fairu::chan::message;
 
 

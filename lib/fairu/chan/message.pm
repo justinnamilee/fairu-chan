@@ -3,7 +3,6 @@
 package fairu::chan::message;
 
 use strict;
-
 use fairu::chan::message::english;
 
 

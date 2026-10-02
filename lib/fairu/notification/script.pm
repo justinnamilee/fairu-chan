@@ -3,9 +3,6 @@
 package fairu::notification::script;
 
 use strict;
-use lib q[lib];
-
-
 use fairu::chan::message;
 
 

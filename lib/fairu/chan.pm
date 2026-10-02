@@ -4,9 +4,6 @@ package fairu::chan;
 
 
 use strict;
-use lib q[lib];
-
-
 use fairu::config qw[meta data];
 use fairu::chan::message;
 use fairu::notification;

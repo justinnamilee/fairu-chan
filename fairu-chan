@@ -2,9 +2,6 @@
 
 
 use strict;
-use lib q[lib]; # for linter
-
-
 use fairu::config q[meta];
 use fairu::chan; # owo
 use fairu::chan::default;
