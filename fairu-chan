@@ -2,6 +2,7 @@
 
 
 use strict;
+use lib q[lib];
 use fairu::config q[meta];
 use fairu::chan; # owo
 
