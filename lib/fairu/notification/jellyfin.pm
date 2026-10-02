@@ -3,7 +3,7 @@
 package fairu::notification::jellyfin;
 
 use strict;
-use fairu::chan::message;
+use fairu::message;
 use File::Basename;
 use File::Spec;
 
