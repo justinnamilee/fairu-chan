@@ -45,7 +45,13 @@ my %message =
   plex_conf_not_valid    => qq[Couldn't configure Plex: config must be a HASH with keys 'webhookUrl', 'webhookToken', and 'libraries'\n],
   plex_mode_not_valid    => qq[Unsupported mode '%s' for Plex Scanner Notification\n],
   plex_no_scan           => qq[Couldn't scan '%s': %s => %s(%s)\n],
-  plex_url_not_valid     => qq[Couldn't configure Plex: '%s' should be a valid HTTP or HTTPS URL\n]
+  plex_url_not_valid     => qq[Couldn't configure Plex: '%s' should be a valid HTTP or HTTPS URL\n],
+  script_bad_exec        => qq[Couldn't execute '%s': %s\n],
+  script_conf_not_valid  => qq[Couldn't configure Script Notification: config must be a HASH with key 'script'\n],
+  script_die_signal      => qq[Script '%s' died with signal %d\n],
+  script_die_status      => qq[Script '%s' exited with status %d\n],
+  script_mode_not_valid  => qq[Unsupported mode '%s' for Script Notification\n],
+  script_no_exec         => qq[Couldn't configure Script Notification: '%s' is not executable\n]
 );
 
 

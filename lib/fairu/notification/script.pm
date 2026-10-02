@@ -5,6 +5,10 @@ package fairu::notification::script;
 use strict;
 use lib q[lib];
 
+
+use fairu::chan::message;
+
+
 my $loaded = undef;
 
 sub new($)
@@ -24,13 +28,13 @@ sub new($)
     }
     else
     {
-      warn qq[Couldn't configure Script Notification: '$config->{script}' is not executable\n];
+      warn fairu::chan::message::get(script_no_exec => $config->{script});
       $error++;
     }
   }
   else
   {
-    warn qq[Couldn't configure Script Notification: config must be a HASH with key 'script'\n];
+    warn fairu::chan::message::get(q[script_conf_not_valid]);
     $error++;
   }
 
@@ -47,28 +51,20 @@ sub handler(@)
 
     if ($? == -1)
     {
-      warn qq[Couldn't execute '$self->{script}': $!\n];
+      warn fairu::chan::message::get(script_bad_exec => $self->{script}, $!);
     }
     elsif ($? & 127)
     {
-      warn sprintf(
-        qq[Script '%s' died with signal %d\n],
-        $self->{script},
-        ($? & 127)
-      );
+      warn fairu::chan::message::get(script_die_signal => $self->{script}, ($? & 127));
     }
     elsif (($? >> 8) != 0)
     {
-      warn sprintf(
-        qq[Script '%s' exited with status %d\n],
-        $self->{script},
-        ($? >> 8)
-      );
+      warn fairu::chan::message::get(script_die_status => $self->{script}, ($? >> 8));
     }
   }
   else
   {
-    warn qq[Unsupported mode '$mode' for Script Notification\n];
+    warn fairu::chan::message::get(script_mode_not_valid => $mode);
   }
 }
 
