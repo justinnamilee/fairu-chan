@@ -34,7 +34,11 @@ my %message =
   conf_parse_not_valid   => qq[Failed to parse config: '%s' is not a readable file or directory\n],
   conf_reload            => qq[Config loaded...\n],
   message_language       => qq[Unable to load language: %s\n],
-  message_key            => qq[Unknown language message key: %s: %s\n]
+  message_key            => qq[Unknown language message key: %s: %s\n],
+  plex_conf_not_valid    => qq[Couldn't configure Plex: config must be a HASH with keys 'webhookUrl', 'webhookToken', and 'libraries'\n],
+  plex_mode_not_valid    => qq[Unsupported mode '%s' for Plex Scanner Notification\n],
+  plex_no_scan           => qq[Couldn't scan '%s': %s => %s(%s)\n],
+  plex_url_not_valid     => qq[Couldn't configure Plex: '%s' should be a valid HTTP or HTTPS URL\n]
 );
 
 

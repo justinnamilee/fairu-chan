@@ -6,6 +6,8 @@ package fairu::notification::plex;
 use strict;
 use lib q[lib];
 
+use fairu::chan::message;
+
 
 sub DEF_URL() { q[%s/library/sections/%s/refresh?path=%s&X-Plex-Token=%s] }
 
@@ -40,13 +42,13 @@ sub new($)
     }
     else
     {
-      warn qq[Couldn't configure Plex: '$config->{webhookUrl}' should be a valid HTTP or HTTPS URL\n];
+      warn fairu::chan::message::get(plex_url_not_valid => $config->{webhookUrl});
       $error++;
     }
   }
   else
   {
-    warn qq[Couldn't configure Plex: config must be a HASH with keys 'webhookUrl', 'webhookToken', and 'libraries'\n];
+    warn fairu::chan::message::get(q[plex_conf_not_valid]);
     $error++;
   }
 
@@ -80,13 +82,13 @@ sub handler(@)
 
       unless ($res->{success})
       {
-        warn qq[Couldn't scan '$dir': $url => $res->{status}($res->{reason})\n];
+        warn fairu::chan::message::get(plex_no_scan => $dir, $url, $res->{status}, $res->{reason});
       }
     }
   }
   else
   {
-    warn qq[Unsupported mode '$mode' for Plex Scanner Notification\n];
+    warn fairu::chan::message::get(plex_mode_not_valid => $mode);
   }
 }
 
