@@ -4,8 +4,11 @@
 use strict;
 use fairu::config q[meta];
 use fairu::chan; # owo
-use fairu::chan::default;
 
+
+# couple statics
+sub IDLE() { 600 }
+sub WAIT() { 5 }
 
 # global stuff
 my ($file, $mode) = @ARGV;
@@ -26,7 +29,7 @@ local $SIG{USR2} = sub { $reload = 1 };
 
 # config some stuff
 exit 1 unless (fairu::config::parse($file) == 0);
-$idle = (meta->{idleTime} || fairu::chan::default->IDLE) if ($run == 1);
+$idle = (meta->{idleTime} || IDLE) if ($run == 1);
 
 if ($run && meta->{autoreload})
 {
@@ -49,8 +52,8 @@ while ($run)
 {
   $watch->scan if defined($watch);
 
-  sleep(meta->{waitTime} || fairu::chan::default->WAIT);
-  $idle -= meta->{waitTime} || fairu::chan::default->WAIT;
+  sleep(meta->{waitTime} || WAIT);
+  $idle -= meta->{waitTime} || WAIT;
 
   if ($run && $reload)
   {
@@ -60,7 +63,7 @@ while ($run)
 
   if ($run && $idle <= 0)
   {
-    $idle = meta->{idleTime} || fairu::chan::default->IDLE;
+    $idle = meta->{idleTime} || IDLE;
 
     fairu::chan::uwu($action);
   }

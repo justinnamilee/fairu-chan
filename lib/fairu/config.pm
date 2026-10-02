@@ -5,7 +5,6 @@ package fairu::config;
 use strict;
 use YAML::PP;
 use fairu::chan::message;
-use fairu::chan::default;
 use fairu::notification;
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
@@ -70,7 +69,7 @@ sub validateGrouping($$)
   }
 
   #* optional... options for a group
-  $group->{fileMode} = fairu::chan::default->ACTION
+  $group->{fileMode} = q[copy]
     unless (defined($group->{fileMode}));
   $group->{fileMode} = lc($group->{fileMode});
 
