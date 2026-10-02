@@ -54,7 +54,10 @@ sub _find {
         } grep { ($_->{Path} // '') =~ /^\Q$path\E(?:\/|$)/ } @{$j->{Items}}
       }
     }
-    #!! JSON decode failed
+    else
+    {
+      warn fairu::message::get(jelly_json_failed => q[search]);
+    }
   }
 
   return (@i);
@@ -66,7 +69,7 @@ sub _full
 
   if ($self->_running)
   {
-    #!! WARN ALREADY RUNNING
+    warn fairu::message::get(q[jelly_full_running]);
   }
   else
   {
@@ -80,6 +83,9 @@ sub _full
         },
       }
     );
+
+    warn fairu::message::get(jelly_http_failed => q[RefreshLibrary]) #!! can use the path
+      unless $res->{status} == 200;
   }
 }
 
@@ -108,6 +114,8 @@ sub _load
 sub _partial
 {
   my ($self, $id) = @_;
+
+  #!! do the bizz
 }
 
 sub _running
@@ -137,9 +145,15 @@ sub _running
       }
       #!! bad struct
     }
-    #!! bad json
+    else
+    {
+      warn fairu::message::get(jelly_json_failed => q[task])
+    }
   }
-  #!! bad result
+  else
+  {
+    warn fairu::message::get(jelly_http_failed => q[ScheduleTask]);
+  }
 
   return ($ret);
 }
@@ -176,9 +190,15 @@ sub new
         $notification->{type} = $config->{type} // DEF_TYPE;
         $notification->{url} = $config->{url};
       }
-      #!! ELSE URL NOT VALID
+      else
+      {
+        warn fairu::message::get(q[jelly_url_not_valid]);
+      }
     }
-    #!! ELSE CONFIG NOT HASH
+    else
+    {
+      warn fairu::message::get(q[jelly_conf_not_valid]);
+    }
   }
 
   return ($error > 0 ? $error : bless $notification, $self);
