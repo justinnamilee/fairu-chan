@@ -6,15 +6,12 @@ use strict;
 use lib q[lib];
 
 use YAML::PP;
+use fairu::chan::message;
+use fairu::chan::default;
 use fairu::notification;
+
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
-
-
-###
-# constants
-
-sub DEF_MODE() { q[copy] }
 
 
 ###
@@ -35,52 +32,54 @@ sub data() { ref($config) ? $config->{data} : {} }
 
 sub validateGrouping($$)
 {
-  my ($error, $title, $group) = (0, @_);
+  my ($title, $group) = @_;
+  my $error = 0;
 
   #* required options for a group
   unless (ref($group) eq 'HASH')
   {
-    warn qq[Failed to validate config($title): grouping should be a hash];
+    warn fairu::chan::message::get(conf_group => $title);
     $error++;
   }
 
   unless (ref($group->{inFile}) eq q[HASH] && ref($group->{outFile}) eq q[HASH])
   {
-    warn qq[Failed to validate config($title): inFile and outFile should be hashes\n];
+    warn fairu::chan::message::get(conf_group_in_out => $title);
     $error++;
   }
 
   unless (-d $group->{inFile}->{basePath})
   {
-    warn qq[Failed to validate config($title): inFile->basePath '$group->{inFile}->{basePath}' is not a directory\n];
+    warn fairu::chan::message::get(conf_group_in_base => $title, $group->{inFile}->{basePath});
     $error++;
   }
 
   unless ((! -e $group->{outFile}->{basePath}) || -d $group->{outFile}->{basePath})
   {
-    warn qq[Failed to validate config($title): outFile->basePath '$group->{outFile}->{basePath}' is not a directory\n];
+    warn fairu::chan::message::get(conf_group_out_base => $title, $group->{outFile}->{basePath});
     $error++;
   }
 
   unless (length($group->{inFile}->{inRegex}) > 0)
   {
-    warn qq[Failed to validate config($title): inFile->inRegex should be a string of length > 0\n];
+    warn fairu::chan::message::get(conf_group_in_regex => $title);
     $error++;
   }
 
   unless (length($group->{outFile}->{outSprintf}) > 0)
   {
-    warn qq[Failed to validate config($title): outFile->outSprintf should be a string of length > 0\n];
+    warn fairu::chan::message::get(conf_group_out_sprintf => $title);
     $error++;
   }
 
   #* optional... options for a group
-  $group->{fileMode} = DEF_MODE unless (defined($group->{fileMode}));
+  $group->{fileMode} = fairu::chan::default->ACTION
+    unless (defined($group->{fileMode}));
   $group->{fileMode} = lc($group->{fileMode});
 
   unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
   {
-    warn qq[Failed to validate config($title): fileMode should be 'copy' or 'move'\n];
+    warn fairu::chan::message::get(conf_group_file_mode => $title);
     $error++;
   }
 
@@ -95,14 +94,14 @@ sub validateGrouping($$)
 
         if ($@ || ref($group->{mapFunction}->{$map}) ne q[CODE])
         {
-          warn qq[Failed to validate config($title): mapFunction->$map should be a string containing a valid perlsub];
+          warn fairu::chan::message::get(conf_group_map_item => $title, $map);
           $error++
         }
       }
     }
     else
     {
-      warn qq[Failed to validate config($title): outFile->mapFunction should be a hash containing perlsubs\n];
+      warn fairu::chan::message::get(conf_group_map => $title);
       $error++;
     }
   }
@@ -112,7 +111,8 @@ sub validateGrouping($$)
 
 sub validateMeta($)
 {
-  my ($error, $meta) = (0, @_);
+  my ($meta) = @_;
+  my $error = 0;
 
   #* optional... options for meta
   if (defined($meta->{notification}))
@@ -121,13 +121,13 @@ sub validateMeta($)
     {
       unless (fairu::notification::init($meta->{notification}) == 0)
       {
-        warn qq[Failed to setup notifications: ¯\\_(ツ)_/¯\n];
+        warn fairu::chan::message::get(q[conf_meta_notif_init]);
         $error++;
       }
     }
     else
     {
-      warn qq[Failed to setup notifications: meta->notification should be a HASH\n];
+      warn fairu::chan::message::get(q[conf_meta_notif_hash]);
       $error++;
     }
   }
@@ -143,14 +143,14 @@ sub validateMeta($)
 
         if ($@ || ref($meta->{mapFunction}->{$map} ne q[CODE]))
         {
-          warn qq[Failed to validate config: mapFunction->$map should be a string containing a valid perlsub\n];
+          warn fairu::chan::message::get(conf_meta_map_item => $map);
           $error++;
         }
       }
     }
     else
     {
-      warn qq[Failed to validate config: mapFunction should be a hash containing perlsubs\n];
+      warn ;
       $error++;
     }
   }
@@ -159,7 +159,7 @@ sub validateMeta($)
   {
     unless ($meta->{idleTime} >= 0)
     {
-      warn qq[Failed to validate config: idleTime should be greater than or equal to zero\n];
+      warn fairu::chan::message::get(q[conf_meta_idle]);
       $error++;
     }
   }
@@ -168,7 +168,7 @@ sub validateMeta($)
   {
     unless ($meta->{waitTime} >= 0)
     {
-      warn qq[Failed to validate config: waitTime should be greater than or equal to zero\n];
+      warn fairu::chan::message::get(q[conf_meta_wait]);
       $error++;
     }
   }
@@ -178,13 +178,14 @@ sub validateMeta($)
 
 sub validateData($)
 {
-  my ($error, $data) = (0, @_);
+  my ($data) = @_;
+  my $error = 0;
 
   foreach my $title (sort keys(%{$data}))
   {
     unless ((my $count = validateGrouping($title, $data->{$title})) == 0)
     {
-      warn qq[Failed to validate config($title): $count problem], $count > 1 ? q[s] : (), qq[ found\n];
+      warn fairu::chan::message::get(conf_data => $title, $count);
       $error++;
     }
   }
@@ -194,15 +195,16 @@ sub validateData($)
 
 sub parse($)
 {
-  my ($error, $newConfig, $file) = (0, undef, @_);
+  my ($path) = @_;
+  my ($error, $newConfig) = (0, undef);
 
-  if (-f $file && -r $file)
+  if (-f $path && -r $path)
   {
-    eval { $newConfig = YAML::PP::LoadFile($file) };
+    $newConfig = eval { YAML::PP::LoadFile($path) };
 
     if ($@)
     {
-      warn qq[Failed to parse config: $file should be a valid YAML file\n];
+      warn fairu::chan::message::get(conf_parse_loadfile => $path);
       $error++;
     }
     else
@@ -217,24 +219,24 @@ sub parse($)
   }
   else
   {
-    warn qq[Failed to parse config: input should be a readable file\n];
+    warn fairu::chan::message::get(conf_parse_not_valid => $path);
     $error++;
   }
 
   if ($error == 0)
   {
     $config = $newConfig;
-    print qq[Config loaded...\n];
+    warn fairu::chan::message::get(q[conf_reload]);
 
-    fairu::notification::send(q[information], q[Config loaded...]);
+    fairu::notification::send(q[information], fairu::chan::message::get(q[conf_reload]));
   }
   elsif (defined($config))
   {
-    warn qq[Keeping old config...\n];
+    warn fairu::chan::message::get(q[conf_no_reload]);
   }
   else
   {
-    warn qq[Problems found in config, aborting...\n];
+    warn fairu::chan::message::get(q[conf_no_config]);
   }
 
   return ($error);

@@ -7,6 +7,9 @@ use strict;
 use lib q[lib];
 
 
+use fairu::chan::message;
+
+
 sub DEF_VRF() { 1 }
 
 
@@ -36,11 +39,9 @@ sub new($)
       my $d = WebService::Discord::Webhook->new(url => $config->{webhookUrl}, verify_SSL => $config->{verify});
 
       #? do a connection test / get the webhook thingie
-      eval { $d->get };
-
-      if ($@)
+      if (eval { $d->get })
       {
-        warn qq[Couldn't "get" on Discord webhook: $@\n];
+        warn fairu::chan::message::get(q[discord_no_get]);
         $error++;
       }
       else
@@ -50,13 +51,13 @@ sub new($)
     }
     else
     {
-      warn qq[Couldn't configure Discord: '$config->{webhookUrl}' should be a valid HTTPS URL\n];
+      warn fairu::chan::message::get(discord_url_not_valid => $config->{webhookUrl});
       $error++;
     }
   }
   else
   {
-    warn qq[Couldn't configure Discord: config should be a HASH and template should be non-zero length string\n];
+    warn fairu::chan::message::get(q[discord_conf_not_valid]);
     $error++;
   }
 

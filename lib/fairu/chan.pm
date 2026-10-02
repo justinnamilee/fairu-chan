@@ -8,6 +8,7 @@ use lib q[lib];
 
 
 use fairu::config qw[meta data];
+use fairu::chan::message;
 use fairu::notification;
 use File::Spec;
 use File::Copy;
@@ -36,7 +37,7 @@ sub scanFiles($$)
   }
   else
   {
-    warn qq[Unabled to open path: $path\n];
+    warn fairu::chan::message::get(chan_open => $path);
   }
 
   return (@f);
@@ -143,7 +144,7 @@ sub uwu($)
       {
         unless (File::Path::make_path($path))
         {
-          warn qq[Failed to create path: $path\n];
+          warn fairu::chan::message::get(chan_build => $path);
           $error++;
         }
       }
@@ -157,16 +158,16 @@ sub uwu($)
         }
         else
         {
-          warn qq[Failed to $mode '$ifile' to '$ofile': $!\n];
+          warn fairu::chan::message::get(chan_action => $mode, $ifile, $ofile, $!);
           $error++;
         }
       }
 
-      print qq[\u$mode: '$ifile' -> '$ofile'\n];
+      print fairu::chan::message::get(chan_success => $mode, $ifile, $ofile);
     }
   }
 
-  fairu::notification::send(q[debug], sprintf(q[Matched %d files, processed %d files!], int(keys(%{$map})), $count)) if $count > 0;
+  fairu::notification::send(q[debug], fairu::chan::message::get(chan_notif_debug => int(keys(%{$map})), $count)) if $count > 0;
 
   return ($error);
 }

@@ -7,45 +7,41 @@ use lib q[lib]; # for linter
 
 use fairu::config q[meta];
 use fairu::chan; # owo
-
-
-# perl "constants" the old school way
-sub IDX_MODE() { 1 }
-sub IDX_FILE() { 0 }
-sub DEF_IDLE() { 600 }
-sub DEF_WAIT() { 5 }
+use fairu::chan::default;
 
 
 # global stuff
-my $action = 0;
-my $file   = $ARGV[IDX_FILE];
-my $run    = 0;
+my ($file, $mode) = @ARGV;
+
+my $action = lc($mode) eq q[run] || lc($mode) eq q[daemon];
+my $run    = lc($mode) eq q[daemon];
 my $idle   = 0;
 my $reload = 0;
 my $watch  = undef;
 
 # setup autoflush
-our $| = 1;
+local $| = 1;
 
 # signal handlers
-$SIG{TERM} = sub { $run = 0; fairu::chan::stop() };
-$SIG{USR1} = sub { $idle = 0 };
-$SIG{USR2} = sub { $reload = 1 };
-
-# set the run mode
-$action = 1, $run = 0 if (lc($ARGV[IDX_MODE]) eq q[run]);
-$action = 1, $run = 1 if (lc($ARGV[IDX_MODE]) eq q[daemon]);
+local $SIG{TERM} = sub { $run = 0; fairu::chan::stop() };
+local $SIG{USR1} = sub { $idle = 0 };
+local $SIG{USR2} = sub { $reload = 1 };
 
 # config some stuff
 exit 1 unless (fairu::config::parse($file) == 0);
-$idle = (meta->{idleTime} || DEF_IDLE) if ($run == 1);
+$idle = (meta->{idleTime} || fairu::chan::default->IDLE) if ($run == 1);
 
 if ($run && meta->{autoreload})
 {
-  require File::Monitor;
+  if (eval { require File::Monitor })
+  {
+    $watch = File::Monitor->new();
+    $watch->watch($file, sub { $reload = 1; $idle = 0 });
+  }
+  else
+  {
 
-  $watch = File::Monitor->new();
-  $watch->watch($file, sub { $reload = 1, $idle = 0 });
+  }
 }
 
 # first run
@@ -56,8 +52,8 @@ while ($run)
 {
   $watch->scan if defined($watch);
 
-  sleep(meta->{waitTime} || DEF_WAIT);
-  $idle -= meta->{waitTime} || DEF_WAIT;
+  sleep(meta->{waitTime} || fairu::chan::default->WAIT);
+  $idle -= meta->{waitTime} || fairu::chan::default->WAIT;
 
   if ($run && $reload)
   {
@@ -67,7 +63,7 @@ while ($run)
 
   if ($run && $idle <= 0)
   {
-    $idle = meta->{idleTime} || DEF_IDLE;
+    $idle = meta->{idleTime} || fairu::chan::default->IDLE;
 
     fairu::chan::uwu($action);
   }

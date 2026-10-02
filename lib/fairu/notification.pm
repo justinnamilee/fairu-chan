@@ -7,6 +7,7 @@ use strict;
 use lib q[lib];
 
 
+use fairu::chan::message;
 use fairu::notification::discord;
 use fairu::notification::plex;
 # TODO: more notification types here?
@@ -37,7 +38,7 @@ sub init($)
         }
         else
         {
-          warn qq[Couldn't configure notification($k)];
+          warn fairu::chan::message::get(notif_conf_failed => $k);
           $error++;
         }
       }
@@ -52,7 +53,7 @@ sub init($)
         }
         else
         {
-          warn qq[Couldn't configure notification($k)];
+          warn fairu::chan::message::get(notif_conf_failed => $k);
           $error++;
         }
       }
@@ -61,7 +62,7 @@ sub init($)
   }
   elsif (defined($config))
   {
-    warn qq[Couldn't configure notifications: meta->notification should be a HASH\n];
+    warn fairu::chan::message::get(q[notif_conf_not_valid]);
     $error++;
   }
 
@@ -82,11 +83,11 @@ sub send($@)
   {
     #? we'll YOLO these notifications with eval for now, no need to crash
     eval { $_->handler($mode, @data) for @{$notification->{$mode}} };
-    warn qq[Ran into notification sending issues.\n] if ($@);
+    warn fairu::chan::message::get(q[notif_send_failed]) if ($@);
   }
   else
   {
-    warn qq[Unknown notification type '$mode'.\n];
+    warn fairu::chan::message::get(notif_mode_not_valid => $mode);
   }
 }
 
