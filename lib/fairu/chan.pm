@@ -5,7 +5,7 @@ package fairu::chan;
 
 use strict;
 use fairu::config qw[meta data];
-use fairu::chan::message;
+use fairu::message;
 use fairu::notification;
 use File::Spec;
 use File::Copy;
@@ -34,7 +34,7 @@ sub scanFiles($$)
   }
   else
   {
-    warn fairu::chan::message::get(chan_open => $path);
+    warn fairu::message::get(chan_open => $path);
   }
 
   return (@f);
@@ -141,7 +141,7 @@ sub uwu($)
       {
         unless (File::Path::make_path($path))
         {
-          warn fairu::chan::message::get(chan_build => $path);
+          warn fairu::message::get(chan_build => $path);
           $error++;
         }
       }
@@ -155,16 +155,16 @@ sub uwu($)
         }
         else
         {
-          warn fairu::chan::message::get(chan_action => $mode, $ifile, $ofile, $!);
+          warn fairu::message::get(chan_action => $mode, $ifile, $ofile, $!);
           $error++;
         }
       }
 
-      print fairu::chan::message::get(chan_success => $mode, $ifile, $ofile);
+      print fairu::message::get(chan_success => $mode, $ifile, $ofile);
     }
   }
 
-  fairu::notification::send(q[debug], fairu::chan::message::get(chan_notif_debug => int(keys(%{$map})), $count)) if $count > 0;
+  fairu::notification::send(q[debug], fairu::message::get(chan_notif_debug => int(keys(%{$map})), $count)) if $count > 0;
 
   return ($error);
 }

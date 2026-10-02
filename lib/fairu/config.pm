@@ -4,7 +4,7 @@ package fairu::config;
 
 use strict;
 use YAML::PP;
-use fairu::chan::message;
+use fairu::message;
 use fairu::notification;
 use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
@@ -34,37 +34,37 @@ sub validateGrouping($$)
   #* required options for a group
   unless (ref($group) eq 'HASH')
   {
-    warn fairu::chan::message::get(conf_group => $title);
+    warn fairu::message::get(conf_group => $title);
     $error++;
   }
 
   unless (ref($group->{inFile}) eq q[HASH] && ref($group->{outFile}) eq q[HASH])
   {
-    warn fairu::chan::message::get(conf_group_in_out => $title);
+    warn fairu::message::get(conf_group_in_out => $title);
     $error++;
   }
 
   unless (-d $group->{inFile}->{basePath})
   {
-    warn fairu::chan::message::get(conf_group_in_base => $title, $group->{inFile}->{basePath});
+    warn fairu::message::get(conf_group_in_base => $title, $group->{inFile}->{basePath});
     $error++;
   }
 
   unless ((! -e $group->{outFile}->{basePath}) || -d $group->{outFile}->{basePath})
   {
-    warn fairu::chan::message::get(conf_group_out_base => $title, $group->{outFile}->{basePath});
+    warn fairu::message::get(conf_group_out_base => $title, $group->{outFile}->{basePath});
     $error++;
   }
 
   unless (length($group->{inFile}->{inRegex}) > 0)
   {
-    warn fairu::chan::message::get(conf_group_in_regex => $title);
+    warn fairu::message::get(conf_group_in_regex => $title);
     $error++;
   }
 
   unless (length($group->{outFile}->{outSprintf}) > 0)
   {
-    warn fairu::chan::message::get(conf_group_out_sprintf => $title);
+    warn fairu::message::get(conf_group_out_sprintf => $title);
     $error++;
   }
 
@@ -75,7 +75,7 @@ sub validateGrouping($$)
 
   unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
   {
-    warn fairu::chan::message::get(conf_group_file_mode => $title);
+    warn fairu::message::get(conf_group_file_mode => $title);
     $error++;
   }
 
@@ -90,14 +90,14 @@ sub validateGrouping($$)
 
         if ($@ || ref($group->{mapFunction}->{$map}) ne q[CODE])
         {
-          warn fairu::chan::message::get(conf_group_map_item => $title, $map);
+          warn fairu::message::get(conf_group_map_item => $title, $map);
           $error++
         }
       }
     }
     else
     {
-      warn fairu::chan::message::get(conf_group_map => $title);
+      warn fairu::message::get(conf_group_map => $title);
       $error++;
     }
   }
@@ -117,13 +117,13 @@ sub validateMeta($)
     {
       unless (fairu::notification::init($meta->{notification}) == 0)
       {
-        warn fairu::chan::message::get(q[conf_meta_notif_init]);
+        warn fairu::message::get(q[conf_meta_notif_init]);
         $error++;
       }
     }
     else
     {
-      warn fairu::chan::message::get(q[conf_meta_notif_hash]);
+      warn fairu::message::get(q[conf_meta_notif_hash]);
       $error++;
     }
   }
@@ -139,7 +139,7 @@ sub validateMeta($)
 
         if ($@ || ref($meta->{mapFunction}->{$map} ne q[CODE]))
         {
-          warn fairu::chan::message::get(conf_meta_map_item => $map);
+          warn fairu::message::get(conf_meta_map_item => $map);
           $error++;
         }
       }
@@ -155,7 +155,7 @@ sub validateMeta($)
   {
     unless ($meta->{idleTime} >= 0)
     {
-      warn fairu::chan::message::get(q[conf_meta_idle]);
+      warn fairu::message::get(q[conf_meta_idle]);
       $error++;
     }
   }
@@ -164,7 +164,7 @@ sub validateMeta($)
   {
     unless ($meta->{waitTime} >= 0)
     {
-      warn fairu::chan::message::get(q[conf_meta_wait]);
+      warn fairu::message::get(q[conf_meta_wait]);
       $error++;
     }
   }
@@ -181,7 +181,7 @@ sub validateData($)
   {
     unless ((my $count = validateGrouping($title, $data->{$title})) == 0)
     {
-      warn fairu::chan::message::get(conf_data => $title, $count);
+      warn fairu::message::get(conf_data => $title, $count);
       $error++;
     }
   }
@@ -200,7 +200,7 @@ sub parse($)
 
     if ($@)
     {
-      warn fairu::chan::message::get(conf_parse_loadfile => $path);
+      warn fairu::message::get(conf_parse_loadfile => $path);
       $error++;
     }
     else
@@ -215,24 +215,24 @@ sub parse($)
   }
   else
   {
-    warn fairu::chan::message::get(conf_parse_not_valid => $path);
+    warn fairu::message::get(conf_parse_not_valid => $path);
     $error++;
   }
 
   if ($error == 0)
   {
     $config = $newConfig;
-    warn fairu::chan::message::get(q[conf_reload]);
+    warn fairu::message::get(q[conf_reload]);
 
-    fairu::notification::send(q[information], fairu::chan::message::get(q[conf_reload]));
+    fairu::notification::send(q[information], fairu::message::get(q[conf_reload]));
   }
   elsif (defined($config))
   {
-    warn fairu::chan::message::get(q[conf_no_reload]);
+    warn fairu::message::get(q[conf_no_reload]);
   }
   else
   {
-    warn fairu::chan::message::get(q[conf_no_config]);
+    warn fairu::message::get(q[conf_no_config]);
   }
 
   return ($error);

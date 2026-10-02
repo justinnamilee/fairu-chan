@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package fairu::chan::message::english;
+package fairu::message::english;
 
 use strict;
 

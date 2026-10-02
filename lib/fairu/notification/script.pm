@@ -3,7 +3,7 @@
 package fairu::notification::script;
 
 use strict;
-use fairu::chan::message;
+use fairu::message;
 
 
 my $loaded = undef;
@@ -25,13 +25,13 @@ sub new($)
     }
     else
     {
-      warn fairu::chan::message::get(script_no_exec => $config->{script});
+      warn fairu::message::get(script_no_exec => $config->{script});
       $error++;
     }
   }
   else
   {
-    warn fairu::chan::message::get(q[script_conf_not_valid]);
+    warn fairu::message::get(q[script_conf_not_valid]);
     $error++;
   }
 
@@ -48,20 +48,20 @@ sub handler(@)
 
     if ($? == -1)
     {
-      warn fairu::chan::message::get(script_bad_exec => $self->{script}, $!);
+      warn fairu::message::get(script_bad_exec => $self->{script}, $!);
     }
     elsif ($? & 127)
     {
-      warn fairu::chan::message::get(script_die_signal => $self->{script}, ($? & 127));
+      warn fairu::message::get(script_die_signal => $self->{script}, ($? & 127));
     }
     elsif (($? >> 8) != 0)
     {
-      warn fairu::chan::message::get(script_die_status => $self->{script}, ($? >> 8));
+      warn fairu::message::get(script_die_status => $self->{script}, ($? >> 8));
     }
   }
   else
   {
-    warn fairu::chan::message::get(script_mode_not_valid => $mode);
+    warn fairu::message::get(script_mode_not_valid => $mode);
   }
 }
 
