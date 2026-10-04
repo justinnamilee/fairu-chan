@@ -40,7 +40,9 @@ sub _find
   my ($self, $path) = @_;
 
   my @i = ();
-  my $term = $self->_clean($path);
+
+  (my $p = (File::Basename::fileparse($path))[1]) =~ s{/$}{};
+  my $term = $self->_clean(File::Basename::basename($p));
 
   my $res = HTTP::Tiny->new(agent => $self->{agent})->get(
     sprintf(
@@ -57,9 +59,9 @@ sub _find
     if (my $j = eval { JSON::PP::decode_json($res->{content}) })
     {
       if (ref($j->{Items}) eq q[ARRAY]) {
-        @i = map {
-          [@{$_}{qw(Name Id Path)}]
-        } grep { ($_->{Path} // '') =~ /^\Q$path\E(?:\/|$)/ } @{$j->{Items}}
+        @i = map { $_->{Id} } grep {
+          ($_->{Path} // '') =~ /^\Q$p\E(?:\/|$)/
+        } @{$j->{Items}}
       }
     }
     else
@@ -154,7 +156,7 @@ sub new
         $notification->{path}->{scan} = $config->{path}->{scan} // DEF_SCAN;
         $notification->{path}->{task} = $config->{path}->{task} // DEF_TASK;
         $notification->{token} = qq[MediaBrowser Token="$config->{token}"];
-        $notification->{type} = $config->{type} // DEF_TYPE;
+        $notification->{type} = $config->{media} // DEF_TYPE;
         $notification->{url} = $config->{url};
       }
       else
