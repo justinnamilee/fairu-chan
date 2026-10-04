@@ -187,6 +187,8 @@ sub handler
       $self->_full
     }
   }
+
+  return 1;
 }
 
 
