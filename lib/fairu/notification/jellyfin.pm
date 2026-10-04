@@ -75,22 +75,9 @@ sub _full
 {
   my ($self) = @_;
 
-  if ($self->_running)
-  {
-    warn fairu::message::get(q[jelly_full_running]);
-  }
-  else
-  {
-    warn fairu::message::get(q[jelly_full]);
+  warn fairu::message::get(q[jelly_full]);
 
-    my $res = HTTP::Tiny->new(agent => $self->{agent})->post(
-      sprintf($self->{path}->{full}, $self->{url}),
-      { headers => { Authorization => $self->{token} } }
-    );
-
-    warn fairu::message::get(jelly_http_failed => q[RefreshLibrary]) #!! can use the sprintf'd path
-      unless $res->{status} == 200;
-  }
+  return ($self->_post(sprintf($self->{path}->{full}, $self->{url})));
 }
 
 sub _load
@@ -119,59 +106,30 @@ sub _partial
 {
   my ($self, $id) = @_;
 
-  my $res = HTTP::Tiny->new(agent => $self->{agent})->post(
-    sprintf($self->{path}->{scan}, $id),
-    { headers => { Authorization => $self->{token} } }
-  );
-
-  warn fairu::message::get(jelly_http_failed => q[ItemRefresh])
-    unless ($res->{status} == 200);
+  return ($self->_post(sprintf($self->{path}->{scan}, $self->{url}, $id)));
 }
 
-sub _running
+sub _post
 {
-  my ($self) = @_;
+  my ($self, $url) = @_;
 
-  my $ret = 1; #? assume its running
-
-  my $res = HTTP::Tiny->new(agent => $self->{agent})->get(
-    sprintf($self->{path}->{full}, $self->{url}),
-    { headers => { Authorization => $self->{token} } }
+  my $state = $self->_success(
+    HTTP::Tiny->new(agent => $self->{agent})->post(
+      $url, { headers => { Authorization => $self->{token} } }
+    )->{status}
   );
 
-  if ($res->{status} == 200 && length($res->{content}))
-  {
-    if (my $j = eval { JSON::PP::decode_json($res->{content}) })
-    {
-      my ($m) = grep { $_->{Key} eq q[RefreshLibrary] } @{$j};
+  warn fairu::message::get(jelly_http_failed => $url)
+    unless $state;
 
-      if (ref($m) eq q[HASH] && ref($m->{LastExecutionResult}) eq q[HASH])
-      {
-        $ret = $m->{LastExecutionResult}->{Status} ne q[Completed];
-      }
-      else
-      {
-        warn fairu::message::get(q[jelly_json_not_valid])
-      }
-    }
-    else
-    {
-      warn fairu::message::get(jelly_json_failed => q[task])
-    }
-  }
-  else
-  {
-    warn fairu::message::get(jelly_http_failed => q[ScheduleTask]);
-  }
-
-  return ($ret);
+  return ($state);
 }
 
-sub _scan
+sub _success
 {
-  my ($self, $id) = @_;
+  my ($self, $code) = @_;
 
-  defined($id) ? $self->_partial($id) : $self->_full
+  return ($code == 200 || $code == 204);
 }
 
 
@@ -219,9 +177,14 @@ sub handler
 
   if ($mode eq q[event])
   {
-    foreach my $i ($self->_find($path))
+    if (my @id = $self->_find($path))
     {
-      $self->_scan($i)
+      $self->_partial($_)
+        foreach @id;
+    }
+    else
+    {
+      $self->_full
     }
   }
 }
