@@ -36,14 +36,14 @@ sub new($)
       my $d = WebService::Discord::Webhook->new(url => $config->{webhookUrl}, verify_SSL => $config->{verify});
 
       #? do a connection test / get the webhook thingie
-      if (eval { $d->get; 1 })
+      if (eval { $d->get })
       {
-        warn fairu::message::get(q[discord_no_get]);
-        $error++;
+        $notification->{hook} = $d;
       }
       else
       {
-        $notification->{hook} = $d;
+        warn fairu::message::get(q[discord_no_get]);
+        $error++;
       }
     }
     else
