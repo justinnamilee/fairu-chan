@@ -5,6 +5,7 @@ use strict;
 use lib q[lib];
 use fairu::config q[meta];
 use fairu::chan; # owo
+use fairu::message;
 
 
 # couple statics
@@ -41,7 +42,7 @@ if ($run && meta->{autoreload})
   }
   else
   {
-
+    warn fairu::message::get(generic_require_failed => q[File::Monitor]);
   }
 }
 
