@@ -24,11 +24,23 @@ my $loaded = undef;
 
 #* internal stuff *#
 
-sub _find {
+sub _clean
+{
+  my ($self, $path) = @_;
+
+  $path =~ s/_/ /g;
+  $path =~ s/\s*\[[^]]+\]\s*//g;
+  #? more as needed?
+
+  return ($path);
+}
+
+sub _find
+{
   my ($self, $path) = @_;
 
   my @i = ();
-  my $term = q[]; #!! convert path to term
+  my $term = $self->_clean($path);
 
   my $res = HTTP::Tiny->new(agent => $self->{agent})->get(
     sprintf(
@@ -37,11 +49,7 @@ sub _find {
       $self->{type},
       URI::Escape::uri_escape_utf8($term),
     ),
-    {
-      headers => {
-        Authorization => qq[MediaBrowser Token="$self->{token}"],
-      },
-    }
+    { headers => { Authorization => $self->{token} } }
   );
 
   if ($res->{status} == 200 && length($res->{content}))
@@ -77,14 +85,10 @@ sub _full
 
     my $res = HTTP::Tiny->new(agent => $self->{agent})->post(
       sprintf($self->{path}->{full}, $self->{url}),
-      {
-        headers => {
-          Authorization => qq[MediaBrowser Token="$self->{token}"],
-        },
-      }
+      { headers => { Authorization => $self->{token} } }
     );
 
-    warn fairu::message::get(jelly_http_failed => q[RefreshLibrary]) #!! can use the path
+    warn fairu::message::get(jelly_http_failed => q[RefreshLibrary]) #!! can use the sprintf'd path
       unless $res->{status} == 200;
   }
 }
@@ -115,7 +119,13 @@ sub _partial
 {
   my ($self, $id) = @_;
 
-  #!! do the bizz
+  my $res = HTTP::Tiny->new(agent => $self->{agent})->post(
+    sprintf($self->{path}->{scan}, $id),
+    { headers => { Authorization => $self->{token} } }
+  );
+
+  warn fairu::message::get(jelly_http_failed => q[ItemRefresh])
+    unless ($res->{status} == 200);
 }
 
 sub _running
@@ -124,13 +134,9 @@ sub _running
 
   my $ret = 1; #? assume its running
 
-  my $res = HTTP::Tiny->new(agent => $self->{agent})->post(
+  my $res = HTTP::Tiny->new(agent => $self->{agent})->get(
     sprintf($self->{path}->{full}, $self->{url}),
-    {
-      headers => {
-        Authorization => qq[MediaBrowser Token="$self->{token}"],
-      },
-    }
+    { headers => { Authorization => $self->{token} } }
   );
 
   if ($res->{status} == 200 && length($res->{content}))
@@ -143,7 +149,10 @@ sub _running
       {
         $ret = $m->{LastExecutionResult}->{Status} ne q[Completed];
       }
-      #!! bad struct
+      else
+      {
+        warn fairu::message::get(q[jelly_json_not_valid])
+      }
     }
     else
     {
@@ -186,7 +195,7 @@ sub new
         $notification->{path}->{full} = $config->{path}->{full} // DEF_FULL;
         $notification->{path}->{scan} = $config->{path}->{scan} // DEF_SCAN;
         $notification->{path}->{task} = $config->{path}->{task} // DEF_TASK;
-        $notification->{token} = $config->{token};
+        $notification->{token} = qq[MediaBrowser Token="$config->{token}"];
         $notification->{type} = $config->{type} // DEF_TYPE;
         $notification->{url} = $config->{url};
       }
@@ -215,7 +224,6 @@ sub handler
       $self->_scan($i)
     }
   }
-  #!! ELSE MODE NOT SUPPORTED
 }
 
 

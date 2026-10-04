@@ -42,11 +42,12 @@ my %message =
   jelly_full_running     => qq[Jellyfin reports full refresh already in progress, skipping.\n],
   jelly_http_failed      => qq[Failed post for '%s'.\n],
   jelly_json_failed      => qq[Failed to decode '%s' response.\n],
+  jelly_json_not_valid   => qq[Jellyfin returned an unexpected JSON structure.\n],
   jelly_url_not_valid    => qq[Jellyfin URL must be valid http or https host.\n],
   message_language       => qq[Unable to load language: %s\n],
   message_key            => qq[Unknown language message key: %s: %s\n],
-  notif_compile_failed   => qq[Couldn't compile notification(%s)],
-  notif_conf_failed      => qq[Couldn't configure notification(%s)],
+  notif_compile_failed   => qq[Couldn't compile notification(%s)\n],
+  notif_conf_failed      => qq[Couldn't configure notification(%s)\n],
   notif_conf_not_valid   => qq[Couldn't configure notifications: meta->notification should be a HASH\n],
   notif_mode_not_valid   => qq[Unknown notification type '%s'.\n],
   notif_send_failed      => qq[Issues sending notification(s).\n],
@@ -58,7 +59,7 @@ my %message =
   script_conf_not_valid  => qq[Couldn't configure Script Notification: config must be a HASH with key 'script'\n],
   script_die_signal      => qq[Script '%s' died with signal %d\n],
   script_die_status      => qq[Script '%s' exited with status %d\n],
-  script_mode_not_valid  => qq[Unsupported mode '%s' for Script Notification\n],
+  script_mode_not_valid  => qq[Unsupported mode '%s' for Script notification\n],
   script_no_exec         => qq[Couldn't configure Script Notification: '%s' is not executable\n]
 );
 
