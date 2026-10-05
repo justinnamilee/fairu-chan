@@ -10,8 +10,7 @@ use Exporter q[import];
 our @EXPORT_OK = qw[meta data];
 
 
-###
-# defaults
+#* defaults *#
 
 sub _default()
 {{
@@ -21,21 +20,18 @@ sub _default()
 }}
 
 
-###
-# storage for my stuff
+#* globalz *#
 
 my $config = undef;
 
 
-###
-# stoopid wrappers
+#* exported wrappers *#
 
 sub meta() { ref($config) ? $config->{meta} : {} }
 sub data() { ref($config) ? $config->{data} : {} }
 
 
-###
-# parse & validation
+#* internal functions *#
 
 sub _validate_grouping($$)
 {
@@ -208,6 +204,9 @@ sub _validate_data($)
 
   return ($error)
 }
+
+
+#* public functions *#
 
 sub parse($)
 {

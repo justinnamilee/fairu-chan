@@ -6,10 +6,14 @@ use strict;
 use fairu::message::english;
 
 
+#* globals *#
+
 my $default = fairu::message::english::interface;
 my $interface = $default;
 my $name = fairu::message::english::name;
 
+
+#* public functions *#
 
 sub get($;@)
 {

@@ -5,6 +5,8 @@ package fairu::message::english;
 use strict;
 
 
+#* global message structure *#
+
 my %message =
 (
   chan_action            => qq[Failed to %s '%s' to '%s': %s.\n],
@@ -72,6 +74,8 @@ my %message =
   script_no_exec         => qq[Failed to configure script notification: '%s' is not executable.\n]
 );
 
+
+#* public functions *#
 
 sub interface() { sub { $message{shift()} } }
 sub name()      { q[English] }

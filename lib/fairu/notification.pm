@@ -16,7 +16,8 @@ my %interface = ();
 
 sub init($)
 {
-  my ($error, $new, $config) = (0, { map { $_ => [] } TYPE }, @_);
+  my ($config) = @_;
+  my ($error, $new) = (0, { map { $_ => [] } TYPE });
 
   if (ref($config) eq q[HASH])
   {
