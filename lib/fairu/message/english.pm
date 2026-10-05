@@ -69,7 +69,6 @@ my %message =
   script_conf_not_valid  => qq[Failed to configure script notification: config should be a HASH with key 'script'.\n],
   script_die_signal      => qq[Script '%s' terminated by signal %d.\n],
   script_die_status      => qq[Script '%s' exited with status %d.\n],
-  script_mode_not_valid  => qq[Unsupported mode '%s' for script notification.\n],
   script_no_exec         => qq[Failed to configure script notification: '%s' is not executable.\n]
 );
 

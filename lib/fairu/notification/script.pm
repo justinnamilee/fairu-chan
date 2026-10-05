@@ -6,19 +6,13 @@ use strict;
 use fairu::message;
 
 
-my $loaded = undef;
-
 sub new($)
 {
-  my ($error, $notification, $self, $config) = (0, {}, @_);
+  my ($self, $config) = @_;
+  my ($error, $notification) = (0, {});
 
   if (ref($config) eq q[HASH] && length($config->{script}))
   {
-    unless (defined($loaded))
-    {
-      $loaded = __PACKAGE__;
-    }
-
     if (-x $config->{script})
     {
       $notification->{script} = $config->{script};
@@ -59,10 +53,7 @@ sub handler(@)
       warn fairu::message::get(script_die_status => $self->{script}, ($? >> 8));
     }
   }
-  else
-  {
-    warn fairu::message::get(script_mode_not_valid => $mode);
-  }
 }
+
 
 __PACKAGE__
