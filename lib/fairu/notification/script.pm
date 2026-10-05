@@ -6,6 +6,8 @@ use strict;
 use fairu::message;
 
 
+#* public methods *#
+
 sub new($)
 {
   my ($self, $config) = @_;

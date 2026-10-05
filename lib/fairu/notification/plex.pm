@@ -5,49 +5,74 @@ package fairu::notification::plex;
 
 use strict;
 use fairu::message;
+use File::Basename;
 
+
+#* statics *#
 
 sub DEF_URL() { q[%s/library/sections/%s/refresh?path=%s&X-Plex-Token=%s] }
 
 
+#* globals *#
+
 my $loaded = undef;
 
 
+#* internal stuff *#
+
+sub _load
+{
+  my $error = 0;
+
+  if (!$loaded)
+  {
+    ++$error && warn fairu::message::get(generic_require_failed => q[Data::Validate::URI])
+      unless eval { require Data::Validate::URI };
+
+    ++$error && warn fairu::message::get(generic_require_failed => q[HTTP::Tiny])
+      unless eval { require HTTP::Tiny };
+
+    ++$error && warn fairu::message::get(generic_require_failed => q[URI::Escape])
+      unless eval { require URI::Escape };
+
+    $loaded = __PACKAGE__;
+  }
+
+  return ($error);
+}
+
+
+#* public methods *#
+
 sub new($)
 {
-  my ($error, $notification, $self, $config) = (0, {}, @_);
+  my ($self, $config) = @_;
+  my ($notification, $error) = ({}, $self->_load);
 
-  if (ref($config) eq q[HASH] && length($config->{webhookUrl}) && ref($config->{libraries}) eq q[HASH] && length($config->{webhookToken}))
+  unless ($error)
   {
-    unless (defined($loaded))
+    if (ref($config) eq q[HASH] && length($config->{webhookUrl}) && ref($config->{libraries}) eq q[HASH] && length($config->{webhookToken}))
     {
-      require HTTP::Tiny;
-      require URI::Escape;
-      require File::Basename;
-      require Data::Validate::URI;
+      if (Data::Validate::URI::is_web_uri($config->{webhookUrl}))
+      {
+        (my $base = $config->{webhookUrl}) =~ s|/+$||;
 
-      $loaded = __PACKAGE__;
-    }
-
-    if (Data::Validate::URI::is_http_uri($config->{webhookUrl}))
-    {
-      (my $base = $config->{webhookUrl}) =~ s|/+$||;
-
-      $notification->{url}   = $base;
-      $notification->{token} = $config->{webhookToken};
-      $notification->{lib}   = $config->{libraries};
-      $notification->{http}  = HTTP::Tiny->new(agent => q[PlexScan/1.0]);
+        $notification->{url}   = $base;
+        $notification->{token} = $config->{webhookToken};
+        $notification->{lib}   = $config->{libraries};
+        $notification->{http}  = HTTP::Tiny->new(agent => q[PlexScan/1.0]);
+      }
+      else
+      {
+        warn fairu::message::get(plex_url_not_valid => $config->{webhookUrl});
+        $error++;
+      }
     }
     else
     {
-      warn fairu::message::get(plex_url_not_valid => $config->{webhookUrl});
+      warn fairu::message::get(q[plex_conf_not_valid]);
       $error++;
     }
-  }
-  else
-  {
-    warn fairu::message::get(q[plex_conf_not_valid]);
-    $error++;
   }
 
   return ($error > 0 ? $error : bless $notification, $self);
@@ -78,10 +103,8 @@ sub handler(@)
       my $url = sprintf(DEF_URL, $self->{url}, $section, $enc, $self->{token});
       my $res = $self->{http}->get($url);
 
-      unless ($res->{success})
-      {
-        warn fairu::message::get(plex_no_scan => $dir, $url, $res->{status}, $res->{reason});
-      }
+      warn fairu::message::get(plex_no_scan => $dir, $url, $res->{status}, $res->{reason})
+        unless ($res->{success});
     }
   }
   else

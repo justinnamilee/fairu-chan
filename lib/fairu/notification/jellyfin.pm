@@ -99,9 +99,11 @@ sub _load
 
     ++$error && warn fairu::message::get(generic_require_failed => q[URI::Escape])
       unless eval { require URI::Escape };
+
+    $loaded = __PACKAGE__;
   }
 
-  return $error;
+  return ($error);
 }
 
 sub _partial
