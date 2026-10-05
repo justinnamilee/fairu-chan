@@ -7,12 +7,19 @@ use strict;
 use fairu::message;
 
 
+#* statics *#
+
 sub TYPE() { qw[event information debug] }
 
+
+
+#* globals *#
 
 my $notification = undef;
 my %interface = ();
 
+
+#* public functions *#
 
 sub init($)
 {
@@ -77,9 +84,9 @@ sub send($@)
 
   if (ref($notification->{$mode}) eq q[ARRAY])
   {
-    #? we'll YOLO these notifications with eval for now, no need to crash
-    eval { $_->handler($mode, @data) for @{$notification->{$mode}} };
-    warn fairu::message::get(q[notif_send_failed]) if ($@);
+    warn fairu::message::get(notif_send_failed => $mode)
+      unless eval { $_->handler($mode, @data) for @{$notification->{$mode}}; 1 }
+    #TODO remove eval block
   }
   else
   {

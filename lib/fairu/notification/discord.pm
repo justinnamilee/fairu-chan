@@ -91,6 +91,8 @@ sub handler(@)
   {
     $self->{hook}->execute(sprintf($self->{template}, @data));
   }
+
+  return 1;
 }
 
 

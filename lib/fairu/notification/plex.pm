@@ -111,6 +111,8 @@ sub handler(@)
   {
     warn fairu::message::get(plex_mode_not_valid => $mode);
   }
+
+  return 1;
 }
 
 

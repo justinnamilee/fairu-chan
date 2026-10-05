@@ -55,6 +55,8 @@ sub handler(@)
       warn fairu::message::get(script_die_status => $self->{script}, ($? >> 8));
     }
   }
+
+  return 1;
 }
 
 

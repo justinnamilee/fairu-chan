@@ -60,7 +60,7 @@ my %message =
   notif_conf_failed      => qq[Failed to configure notification(%s).\n],
   notif_conf_not_valid   => qq[Failed to configure notifications: meta->notification should be a HASH.\n],
   notif_mode_not_valid   => qq[Unknown notification type '%s'.\n],
-  notif_send_failed      => qq[Failed to send one or more notifications.\n],
+  notif_send_failed      => qq[Failed to send one or more notifications for type '%s'\n],
 
   plex_conf_not_valid    => qq[Failed to configure Plex: config should be a HASH with keys 'webhookUrl', 'webhookToken', and 'libraries'.\n],
   plex_mode_not_valid    => qq[Unsupported mode '%s' for Plex scanner notification.\n],
