@@ -3,14 +3,10 @@
 
 use strict;
 use lib q[lib];
-use fairu::config q[meta];
 use fairu::chan; # owo
+use fairu::config q[meta];
 use fairu::message;
 
-
-# couple statics
-sub IDLE() { 600 }
-sub WAIT() { 5 }
 
 # global stuff
 my ($file, $mode) = @ARGV;
@@ -30,8 +26,10 @@ local $SIG{USR1} = sub { $idle = 0 };
 local $SIG{USR2} = sub { $reload = 1 };
 
 # config some stuff
-exit 1 unless (fairu::config::parse($file) == 0);
-$idle = (meta->{idleTime} || IDLE) if ($run == 1);
+exit 1
+  unless fairu::config::parse($file);
+
+$idle = meta->{idleTime} if ($run == 1);
 
 if ($run && meta->{autoreload})
 {
@@ -52,10 +50,11 @@ fairu::chan::uwu($action);
 # go daemon if requested
 while ($run)
 {
-  $watch->scan if defined($watch);
+  $watch->scan
+    if defined($watch);
 
-  sleep(meta->{waitTime} || WAIT);
-  $idle -= meta->{waitTime} || WAIT;
+  sleep(meta->{waitTime});
+  $idle -= meta->{waitTime};
 
   if ($run && $reload)
   {
@@ -65,8 +64,7 @@ while ($run)
 
   if ($run && $idle <= 0)
   {
-    $idle = meta->{idleTime} || IDLE;
-
+    $idle = meta->{idleTime};
     fairu::chan::uwu($action);
   }
 }

@@ -11,6 +11,17 @@ our @EXPORT_OK = qw[meta data];
 
 
 ###
+# defaults
+
+sub _default()
+{{
+  chan_fileMode  => q[copy],
+  fairu_idleTime => 600,
+  fairu_waitTime => 5
+}}
+
+
+###
 # storage for my stuff
 
 my $config = undef;
@@ -26,13 +37,13 @@ sub data() { ref($config) ? $config->{data} : {} }
 ###
 # parse & validation
 
-sub validateGrouping($$)
+sub _validate_grouping($$)
 {
   my ($title, $group) = @_;
   my $error = 0;
 
   #* required options for a group
-  unless (ref($group) eq 'HASH')
+  unless (ref($group) eq q[HASH])
   {
     warn fairu::message::get(conf_group => $title);
     $error++;
@@ -69,8 +80,9 @@ sub validateGrouping($$)
   }
 
   #* optional... options for a group
-  $group->{fileMode} = q[copy]
+  $group->{fileMode} = _default->{chan_fileMode}
     unless (defined($group->{fileMode}));
+
   $group->{fileMode} = lc($group->{fileMode});
 
   unless ($group->{fileMode} eq q[move] || $group->{fileMode} eq q[copy])
@@ -105,7 +117,7 @@ sub validateGrouping($$)
   return ($error);
 }
 
-sub validateMeta($)
+sub _validate_meta($)
 {
   my ($meta) = @_;
   my $error = 0;
@@ -159,6 +171,10 @@ sub validateMeta($)
       $error++;
     }
   }
+  else
+  {
+    $meta->{idleTime} = _default->{fairu_idleTime};
+  }
 
   if (defined($meta->{waitTime}))
   {
@@ -168,18 +184,22 @@ sub validateMeta($)
       $error++;
     }
   }
+  else
+  {
+    $meta->{waitTime} = _default->{fairu_waitTime};
+  }
 
   return ($error);
 }
 
-sub validateData($)
+sub _validate_data($)
 {
   my ($data) = @_;
   my $error = 0;
 
   foreach my $title (sort keys(%{$data}))
   {
-    unless ((my $count = validateGrouping($title, $data->{$title})) == 0)
+    if (my $count = _validate_grouping($title, $data->{$title}))
     {
       warn fairu::message::get(conf_data => $title, $count);
       $error++;
@@ -209,8 +229,8 @@ sub parse($)
       $newConfig->{data} = {} unless (ref($newConfig->{data}) eq q[HASH]);
 
       # validate the two sections required for operation
-      $error++ unless (validateMeta($newConfig->{meta}) == 0);
-      $error++ unless (validateData($newConfig->{data}) == 0);
+      $error++ unless (_validate_meta($newConfig->{meta}) == 0);
+      $error++ unless (_validate_data($newConfig->{data}) == 0);
     }
   }
   else
@@ -235,7 +255,7 @@ sub parse($)
     warn fairu::message::get(q[conf_no_config]);
   }
 
-  return ($error);
+  return (!$error);
 }
 
 
