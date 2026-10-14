@@ -63,7 +63,15 @@ sub _validate_grouping($$)
     $error++;
   }
 
-  unless (length($group->{inFile}->{inRegex}) > 0)
+  if (length($group->{inFile}->{inRegex}) > 0)
+  {
+    unless (eval { $group->{inFile}->{inRegex} = qr[$group->{inFile}->{inRegex}] })
+    {
+      warn fairu::message::get(conf_group_in_regex_qr => $title);
+      $error++;
+    }
+  }
+  else
   {
     warn fairu::message::get(conf_group_in_regex => $title);
     $error++;

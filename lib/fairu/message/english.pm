@@ -21,6 +21,7 @@ my %message =
   conf_group_in_base     => qq[Failed to validate config(%s): inFile->basePath '%s' is not a directory.\n],
   conf_group_in_out      => qq[Failed to validate config(%s): inFile and outFile should be HASHes.\n],
   conf_group_in_regex    => qq[Failed to validate config(%s): inFile->inRegex should be a non-empty string.\n],
+  conf_group_in_regex_qr => qq[Failed to validate config(%s): inFile->inRegex failed compilation step.\n],
   conf_group_map         => qq[Failed to validate config(%s): outFile->mapFunction should be a HASH containing Perl subroutines.\n],
   conf_group_map_item    => qq[Failed to validate config(%s): mapFunction->%s should be a string containing a valid Perl subroutine.\n],
   conf_group_out_base    => qq[Failed to validate config(%s): outFile->basePath '%s' is not a directory.\n],

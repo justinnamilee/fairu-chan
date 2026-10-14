@@ -64,14 +64,13 @@ sub matchFiles($)
   foreach my $title (keys(%{data()}))
   {
     my $group = data->{$title};
-    my $match = qr[$group->{inFile}->{inRegex}];
 
     foreach my $file (@{$cache->{recursive($title)}->{$group->{inFile}->{basePath}}})
     {
       #? volume (barf), directory, file
       my ($v, $d, $f) = File::Spec->splitpath($file);
 
-      if ($f =~ $match)
+      if ($f =~ $group->{inFile}->{inRegex})
       {
         #? check for match at lower precedence value (undef == +inf), skip this match if one is found found
         unless
