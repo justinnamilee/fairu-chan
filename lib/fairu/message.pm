@@ -8,9 +8,10 @@ use fairu::message::english;
 
 #* globals *#
 
-my $default = fairu::message::english::interface;
+my $default = fairu::message::english->interface;
+my $name = fairu::message::english->name;
+
 my $interface = $default;
-my $name = fairu::message::english::name;
 
 
 #* public functions *#
@@ -18,17 +19,16 @@ my $name = fairu::message::english::name;
 sub get($;@)
 {
   my ($key, @f) = @_;
-  my $ret = sprintf($default->(q[message_key]), $name, $key);
 
-  if (defined(my $msg = $interface->($key)))
-  {
-    $ret = sprintf($msg, @f);
-  }
+  my $msg = $interface->($key);
+  my $ret = defined($msg)
+    ? sprintf($msg, @f)
+    : sprintf($default->(q[message_key]), $name, $key);
 
   return $ret;
 }
 
-sub set($)
+sub language($)
 {
   my ($language) = @_;
 

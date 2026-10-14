@@ -12,7 +12,6 @@ use fairu::message;
 sub TYPE() { qw[event information debug] }
 
 
-
 #* globals *#
 
 my $notification = undef;
