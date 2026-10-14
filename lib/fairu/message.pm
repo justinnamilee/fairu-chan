@@ -12,7 +12,7 @@ my $default = fairu::message::english->interface;
 my $name = fairu::message::english->name;
 
 my $interface = $default;
-
+my %loaded = (english => 1);
 
 #* public functions *#
 
@@ -34,16 +34,18 @@ sub language($)
 
   my $require = qq[fairu/chan/message/$language.pm];
   my $package = qq[fairu::message::$language];
+  my $success = 0;
 
-  if (eval { require $require })
+  if ($loaded{$language} || eval { require $require })
   {
+    $success = 1;
+    $loaded{$language}++;
+
     $interface = $package->interface;
     $name = $package->name;
   }
-  else
-  {
-    die get(message_language => $language);
-  }
+
+  return ($success);
 }
 
 

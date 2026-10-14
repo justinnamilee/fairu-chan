@@ -185,6 +185,15 @@ sub _validate_meta($)
     $meta->{waitTime} = _default->{fairu_waitTime};
   }
 
+  if (defined($meta->{language}))
+  {
+    unless (fairu::message::language($meta->{language}))
+    {
+      warn get(message_language => $meta->{language});
+      $error++;
+    }
+  }
+
   return ($error);
 }
 
