@@ -197,9 +197,14 @@ sub _validate_meta($)
   {
     unless (fairu::message::language($meta->{language}))
     {
-      warn get(message_language => $meta->{language});
+      warn fairu::message::get(message_language => $meta->{language});
       $error++;
     }
+  }
+
+  if ($meta->{followSymlinks})
+  {
+    warn fairu::message::get(q[conf_meta_symlink]);
   }
 
   return ($error);

@@ -32,6 +32,7 @@ my %message =
   conf_meta_map_item     => qq[Failed to validate config(meta): mapFunction->%s should be a string containing a valid Perl subroutine.\n],
   conf_meta_notif_init   => qq[Failed to validate config(meta): failed to parse notification section.\n],
   conf_meta_notif_hash   => qq[Failed to validate config(meta): notification should be a HASH.\n],
+  conf_meta_symlink      => qq[Warning, 'followSymlinks' is enabled, things could get weird...\n],
   conf_meta_wait         => qq[Failed to validate config(meta): waitTime should be greater than or equal to zero.\n],
 
   conf_no_config         => qq[Failed to load config; aborting.\n],
