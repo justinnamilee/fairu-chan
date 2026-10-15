@@ -7,6 +7,7 @@ use strict;
 use fairu::config qw[meta data];
 use fairu::message;
 use fairu::notification;
+use Encode;
 use File::Spec;
 use File::Copy;
 use File::Path;
@@ -31,6 +32,10 @@ sub _scan($$)
 {
   my ($path, $recurse) = @_;
   my @f = ();
+
+  #? normalize the unicode/utf-8
+  $path = Encode::encode(q[UTF-8], $path)
+    if Encode::is_utf8($path);
 
   if (-f $path)
   {
