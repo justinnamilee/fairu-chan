@@ -11,7 +11,7 @@ my %message =
 (
   chan_action            => qq[Failed to %s '%s' to '%s': %s.\n],
   chan_build             => qq[Failed to create path: %s.\n],
-  chan_open              => qq[Failed to open directory for reading: %s.\n],
+  chan_open              => qq[Failed to open '%s' as a directory for reading: %s.\n],
   chan_notif_debug       => qq[Matched files: %d, processed files: %d.\n],
   chan_success           => qq[%s: '%s' -> '%s'\n],
 

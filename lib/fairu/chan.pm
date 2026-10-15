@@ -12,35 +12,51 @@ use File::Copy;
 use File::Path;
 
 
+#* globals *#
+
 my $run = 1;
 
-sub stop()
+
+#* private functions *#
+
+sub _recursive($)
 {
-  $run = 0;
+  meta->{recurse} || data->{shift()}->{inFile}->{recurse}
+    ? 1
+    : 0
 }
 
-sub recursive($)
+sub _scan($$);
+sub _scan($$)
 {
-  (meta->{recurse} || data->{$_[0]}->{inFile}->{recurse}) ? 1 : 0
-}
+  my ($path, $recurse) = @_;
+  my @f = ();
 
-sub scanFiles($$)
-{
-  my ($recurse, $path, @f) = @_;
-
-  if (opendir(my $d, $path))
+  if (-f $path)
   {
-    @f = map { ($recurse && -d) ? scanFiles($recurse, $_) : $_ } map { File::Spec->join($path, $_) } grep { !/^\.\.?$/ } readdir($d);
+    push(@f, $path);
+  }
+  elsif (-d $path && opendir(my $dh, $path))
+  {
+    foreach my $i (grep { !/^\.\.?$/ } readdir($dh))
+    {
+      my $p = File::Spec->join($path, $i);
+
+      next
+        if -l $p && !meta->{followSymlinks};
+
+      push(@f, -f $p ? $p : (-d $p && $recurse ? scan($p, $recurse) : ()))
+    }
   }
   else
   {
-    warn fairu::message::get(chan_open => $path);
+    warn fairu::message::get(chan_open => $path, $! // q[N/A]);
   }
 
   return (@f);
 }
 
-sub getFiles()
+sub _find()
 {
   my $cache = {0 => {}, 1 => {}}; # quick hack fix
 
@@ -48,24 +64,25 @@ sub getFiles()
   {
     my $path = data->{$title}->{inFile}->{basePath};
 
-    unless (exists($cache->{recursive($title)}->{$path}))
+    unless (exists($cache->{_recursive($title)}->{$path}))
     {
-      $cache->{recursive($title)}->{$path} = [scanFiles(recursive($title), $path)];
+      $cache->{_recursive($title)}->{$path} = [_scan($path, _recursive($title))];
     }
   }
 
   return ($cache);
 }
 
-sub matchFiles($)
+sub _match($)
 {
-  my ($map, $cache) = ({}, @_);
+  my ($cache) = @_;
+  my $map = {};
 
   foreach my $title (keys(%{data()}))
   {
     my $group = data->{$title};
 
-    foreach my $file (@{$cache->{recursive($title)}->{$group->{inFile}->{basePath}}})
+    foreach my $file (@{$cache->{_recursive($title)}->{$group->{inFile}->{basePath}}})
     {
       #? volume (barf), directory, file
       my ($v, $d, $f) = File::Spec->splitpath($file);
@@ -118,12 +135,20 @@ sub matchFiles($)
   return ($map);
 }
 
+
+#* public functions *#
+
+sub stop()
+{
+  $run = 0;
+}
+
 sub uwu($)
 {
-  my ($error, $count, $action) = (0, 0, @_);
+  my ($action) = @_;
+  my ($error, $count) = (0, 0);
 
-  my $cache = getFiles();
-  my $map = matchFiles($cache);
+  my $map = _match(_find());
 
   foreach my $ifile (keys(%{$map}))
   {
