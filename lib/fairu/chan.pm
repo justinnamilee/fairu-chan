@@ -45,7 +45,7 @@ sub _scan($$)
       next
         if -l $p && !meta->{followSymlinks};
 
-      push(@f, -f $p ? $p : (-d $p && $recurse ? scan($p, $recurse) : ()))
+      push(@f, -f $p ? $p : (-d $p && $recurse ? _scan($p, $recurse) : ()))
     }
   }
   else

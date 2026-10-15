@@ -8,6 +8,8 @@ meta:
   recurse: false
   # (OPTINAL) how many seconds between runs if daemonizing, default 600
   idleTime: 200
+  # (OPTIONAL) really probably don't enable this
+  followSymlinks: false
   # (OPTIONAL) how many seconds between checks, default 5 [probably leave it at 5]
   waitTime: 13
   # (OPTIONAL) do a subroutine for a matching tag, gets one arg, should return one too,
